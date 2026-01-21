@@ -1,0 +1,32 @@
+<!-- templates/view_list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniStream Pro — Available Sessions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Available Sessions</h1>
+        {% if broadcasters %}
+            <ul class="session-list">
+                {% for device_id in broadcasters %}
+                    <li>
+                        <span>Broadcaster: {{ device_id }}</span>
+                        <!-- FIXED: use device_id -->
+                       <a href="{{ url_for('view_screen', session_id=device_id) }}" class="btn btn-primary">Join</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No active broadcasters at the moment.</p>
+        {% endif %}
+
+        <div class="actions">
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

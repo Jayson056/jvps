@@ -1,0 +1,29 @@
+<!-- templates/home.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniStream Pro — Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>OmniStream Pro</h1>
+        <p>Welcome to OmniStream Pro — Your remote desktop streaming system</p>
+
+        <div class="actions">
+            <a href="{{ url_for('brodview_new') }}" class="btn btn-primary">Start Broadcast</a>
+            <a href="{{ url_for('view_list') }}" class="btn btn-secondary">View Sessions</a>
+        </div>
+
+
+        <footer>
+            <p>&copy; 2026 OmniStream Pro</p>
+        </footer>
+    </div>
+</body>
+
+</html>

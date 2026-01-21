@@ -1,0 +1,7 @@
+Flask
+Flask-SocketIO
+eventlet
+pyautogui
+python-socketio[client]
+requests
+Pillow

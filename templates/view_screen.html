@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniStream Pro — Viewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+    <style>
+        .rotated { transform: rotate(90deg); max-height: 80vh; }
+        .video-container { position: relative; overflow: hidden; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Viewing Session</h1>
+        <div class="video-container" id="vContainer">
+            <video id="remoteVideo" autoplay playsinline style="width: 100%;"></video>
+        </div>
+
+        <div class="controls">
+            <button id="toggleMouse" class="btn btn-primary">Mouse: ON</button>
+            <button id="toggleKbd" class="btn btn-primary">Kbd: ON</button>
+            <button id="btnFull" class="btn btn-secondary">Fullscreen</button>
+            <button id="btnRotate" class="btn btn-secondary">Rotate</button>
+            <a href="{{ url_for('view_list') }}" class="btn btn-danger">Exit</a>
+        </div>
+    </div>
+
+    <script>
+        window.SESSION_ID = "{{ session_id }}";
+    </script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/webrtc_viewer.js') }}"></script>
+</body>
+</html>

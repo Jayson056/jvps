@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniStream Pro — Broadcaster Preview</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Broadcaster Preview</h1>
+        <p style="text-align: center; color: #888;">Device ID: {{ device_id }}</p>
+
+        <div class="video-container">
+            <video id="localVideo" autoplay playsinline muted></video>
+        </div>
+
+        <div class="controls">
+            <button id="stopBtn" class="btn btn-danger">Stop Broadcast</button>
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+
+        <div class="viewer-list">
+            <h2>Active Viewers</h2>
+            <ul id="viewerList">
+                <li id="no-viewers" style="color: #666;">Waiting for viewers to join...</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Critical: These variables link the HTML to your JS logic
+        window.deviceId = "{{ device_id }}";
+        window.SESSION_ID = "{{ session_id }}"; 
+    </script>
+    
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/webrtc_broadcaster.js') }}"></script>
+</body>
+</html>
