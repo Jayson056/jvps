@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JVPS Desktop Remote — Start Sharing</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>OmniStream Pro — Broadcast Setup</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
     <style>
         .setup-container {
@@ -250,22 +249,22 @@
 <body>
     <div class="setup-container">
         <div class="setup-header">
-            <h1><i class="fas fa-share-screen"></i> Start Desktop Sharing</h1>
-            <p>Create a secure remote access session for your device</p>
+            <h1>🎬 Start Broadcasting</h1>
+            <p>Create your broadcast session with secure access</p>
         </div>
 
         <div class="info-banner">
-            <i class="fas fa-info-circle"></i> Enter a device name and a secure password will be generated automatically.
+            ℹ️ Enter a room name and a secure password will be generated automatically.
         </div>
 
         <form id="broadcastForm">
             <div class="form-group">
-                <label for="roomName"><i class="fas fa-desktop"></i> Device Name *</label>
+                <label for="roomName">🏠 Room Display Name *</label>
                 <input 
                     type="text" 
                     id="roomName" 
                     name="roomName" 
-                    placeholder="e.g., My Desktop, Office Workstation"
+                    placeholder="e.g., My Desktop, Office Meeting Room"
                     required
                     minlength="3"
                     maxlength="50"
@@ -310,34 +309,34 @@
 
             <!-- Shareable Links Display -->
             <div id="linksSection" class="link-section">
-                <div style="margin-bottom: 15px; color: #3498db; font-weight: bold;"><i class="fas fa-link"></i> Share These Links:</div>
+                <div style="margin-bottom: 15px; color: #3498db; font-weight: bold;">🔗 Shareable Links:</div>
 
                 <div class="link-item">
-                    <span class="link-label"><i class="fas fa-magic"></i> Direct Access Link</span>
+                    <span class="link-label">Auto-Viewer Link (Full Control)</span>
                     <div class="link-value">
                         <span id="autoViewerLink" style="flex-grow: 1;"></span>
-                        <button type="button" class="copy-btn-small" onclick="copyToClipboard('autoViewerLink')"><i class="fas fa-copy"></i> Copy</button>
+                        <button type="button" class="copy-btn-small" onclick="copyToClipboard('autoViewerLink')">Copy</button>
                     </div>
                 </div>
 
                 <div class="link-item">
-                    <span class="link-label"><i class="fas fa-key"></i> Password-Protected Link</span>
+                    <span class="link-label">Manual View Link (Need to Enter Password)</span>
                     <div class="link-value">
                         <span id="manualViewLink" style="flex-grow: 1;"></span>
-                        <button type="button" class="copy-btn-small" onclick="copyToClipboard('manualViewLink')"><i class="fas fa-copy"></i> Copy</button>
+                        <button type="button" class="copy-btn-small" onclick="copyToClipboard('manualViewLink')">Copy</button>
                     </div>
                 </div>
 
-                <button type="button" class="link-copy-all" onclick="copyAllLinks()"><i class="fas fa-files"></i> Copy All Details</button>
+                <button type="button" class="link-copy-all" onclick="copyAllLinks()">📋 Copy All Information</button>
             </div>
 
             <!-- Action Buttons -->
             <div class="action-buttons">
                 <button type="button" class="btn-start" id="createBtn" onclick="createSession(event)">
-                    <i class="fas fa-check"></i> Create Session
+                    ✓ Create Session
                 </button>
                 <a href="{{ url_for('home') }}" class="btn-cancel" style="text-align: center; display: flex; align-items: center; justify-content: center; text-decoration: none;">
-                    <i class="fas fa-times"></i> Cancel
+                    ✕ Cancel
                 </a>
             </div>
 

@@ -193,7 +193,7 @@ remoteVideo.addEventListener('mousemove', e => {
     // Validate coordinates
     if (!isNaN(x) && !isNaN(y) && x >= 0 && y >= 0 && 
         x < remoteVideo.videoWidth && y < remoteVideo.videoHeight) {
-        sendControlInput({ type: 'mouse', data: { action: 'move', x, y } });
+        sendControlInput({ type: 'mouse', data: { x, y, move: true } });
     }
 });
 
@@ -229,53 +229,20 @@ remoteVideo.addEventListener('click', e => {
         x < remoteVideo.videoWidth && y < remoteVideo.videoHeight) {
         sendControlInput({
             type: 'mouse',
-            data: { action: 'click', x, y, button: 'left' }
+            data: { x, y, click: true, button: 'left' }
         });
     }
 });
 
-// Keyboard listeners - send press event for actual key presses
+// Keyboard listeners
 window.addEventListener('keydown', e => {
     if (!kbdEnabled) return;
-    
-    // Don't send raw key events, let keypress handle it for text input
-    const key = e.key.toLowerCase();
-    
-    // Handle special keys
-    if (key === 'enter') {
-        sendControlInput({ type: 'keyboard', data: { action: 'press', key: 'return' } });
-        e.preventDefault();
-    } else if (key === 'backspace') {
-        sendControlInput({ type: 'keyboard', data: { action: 'press', key: 'backspace' } });
-        e.preventDefault();
-    } else if (key === 'tab') {
-        sendControlInput({ type: 'keyboard', data: { action: 'press', key: 'tab' } });
-        e.preventDefault();
-    } else if (key === 'arrowup') {
-        sendControlInput({ type: 'keyboard', data: { action: 'press', key: 'up' } });
-        e.preventDefault();
-    } else if (key === 'arrowdown') {
-        sendControlInput({ type: 'keyboard', data: { action: 'press', key: 'down' } });
-        e.preventDefault();
-    } else if (key === 'arrowleft') {
-        sendControlInput({ type: 'keyboard', data: { action: 'press', key: 'left' } });
-        e.preventDefault();
-    } else if (key === 'arrowright') {
-        sendControlInput({ type: 'keyboard', data: { action: 'press', key: 'right' } });
-        e.preventDefault();
-    } else if (key === ' ') {
-        sendControlInput({ type: 'keyboard', data: { action: 'press', key: 'space' } });
-        e.preventDefault();
-    }
+    sendControlInput({ type: 'keyboard', data: { key: e.key, action: 'down' } });
 });
 
-// Handle text input
-window.addEventListener('keypress', e => {
+window.addEventListener('keyup', e => {
     if (!kbdEnabled) return;
-    const char = e.key;
-    if (char.length === 1) {
-        sendControlInput({ type: 'keyboard', data: { action: 'type', key: char } });
-    }
+    sendControlInput({ type: 'keyboard', data: { key: e.key, action: 'up' } });
 });
 
 // ---------------------------

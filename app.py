@@ -3,14 +3,12 @@ from flask import Flask, render_template, request, jsonify, session as flask_ses
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import uuid
 import threading
+import pyautogui
 import time
 import secrets
 import hashlib
 import os
-import sys
-import subprocess
 from datetime import datetime
-from pathlib import Path
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -39,7 +37,8 @@ broadcast_sessions = {}  # device_id -> {'session_id': session_id, 'password': p
 
 log_event('STARTUP', 'Application started')
 
-# PyAutoGUI Configuration (lazy loaded in execute_control)
+# PyAutoGUI Configuration
+pyautogui.FAILSAFE = True
 MOUSE_SPEED = 0.1  # seconds for smooth movement
 
 # ---------------------------
@@ -85,8 +84,46 @@ NOTE: Keep this password secure. Share the links with authorized viewers only.
     
     log_event('PASSWORD_GENERATED', f'Device: {device_id}, Room: {room_name}')
     return password_file
-# Desktop control is now executed by the broadcaster agent (on local machine)
-# The Render server only relays control commands, does NOT execute them
+
+def execute_control(action):
+    """
+    Executes incoming control commands from the remote viewer.
+    action: dict with keys:
+        - type: 'mouse' or 'keyboard'
+        - data: dict containing coordinates or key names
+    """
+    try:
+        if action['type'] == 'mouse':
+            data = action['data']
+            x, y = data.get('x'), data.get('y')
+            
+            if x is not None and y is not None:
+                # Handle Movement
+                if data.get('move'):
+                    pyautogui.moveTo(x, y, duration=MOUSE_SPEED)
+                
+                # Handle Clicks
+                if data.get('click'):
+                    button = data.get('button', 'left')
+                    pyautogui.click(x, y, button=button)
+
+        elif action['type'] == 'keyboard':
+            data = action['data']
+            key = data.get('key')
+            action_type = data.get('action', 'press')
+
+            # Standardize key names
+            key = key.lower() if len(key) > 1 else key
+
+            if action_type == 'press':
+                pyautogui.press(key)
+            elif action_type == 'down':
+                pyautogui.keyDown(key)
+            elif action_type == 'up':
+                pyautogui.keyUp(key)
+
+    except Exception as e:
+        print(f"[ERROR] Failed to execute control: {e}")
 
 # ---------------------------
 # Routes
@@ -365,53 +402,30 @@ def handle_signal(data):
         emit('signal', data, to=target_sid)
 
 # ---------------------------
-# Viewer control (Mouse/Keyboard) - RELAY TO BROADCASTER AGENT
+# Viewer control (Mouse/Keyboard)
 # ---------------------------
 @socketio.on('control_input')
 def control_input(data):
-    """
-    Relay control input from viewer to broadcaster agent.
-    The server does NOT execute controls - only relays them.
-    
-    Broadcaster Agent (running on local machine) executes the controls.
-    """
     session_id = data.get('session_id')
-    control_action = data.get('action', {})
+    broadcaster_id = sessions.get(session_id, {}).get('broadcaster')
     
-    # Find the broadcaster for this session
-    session = sessions.get(session_id)
-    if not session:
-        log_event('CONTROL_ERROR', f'Session not found: {session_id}')
-        emit('control_error', {'error': 'Session not found'})
-        return
-    
-    broadcaster_id = session.get('broadcaster')
     if not broadcaster_id:
-        log_event('CONTROL_ERROR', f'No broadcaster for session {session_id}')
-        emit('control_error', {'error': 'No broadcaster for this session'})
+        log_event('ERROR', f'No broadcaster found for session {session_id}')
         return
     
-    # Check if broadcaster is connected
     if broadcaster_id not in devices:
-        log_event('CONTROL_ERROR', f'Broadcaster {broadcaster_id} not connected')
-        emit('control_error', {'error': 'Broadcaster is offline'})
+        log_event('ERROR', f'Broadcaster {broadcaster_id} not registered in devices')
         return
     
-    broadcaster_sid = devices[broadcaster_id].get('sid')
-    if not broadcaster_sid:
-        log_event('CONTROL_ERROR', f'Broadcaster {broadcaster_id} SID not found')
-        emit('control_error', {'error': 'Broadcaster connection lost'})
+    target_sid = devices[broadcaster_id]['sid']
+    if not target_sid:
+        log_event('ERROR', f'Broadcaster {broadcaster_id} has no SID assigned')
         return
     
-    control_type = control_action.get('type', 'unknown')
-    log_event('CONTROL_RELAY', f'Relaying {control_type} control from viewer to broadcaster {broadcaster_id}')
+    log_event('CONTROL_INPUT', f'Control from session {session_id}: {data.get("action", {}).get("type", "unknown")}')
     
-    # Relay control to broadcaster agent
-    # The broadcaster agent will execute the actual control
-    emit('control_input', {
-        'type': control_type,
-        'data': control_action.get('data', {})
-    }, to=broadcaster_sid)
+    # Execute locally via PyAutoGUI (no need to wait for agent)
+    execute_control(data['action'])
 
 # ---------------------------
 # Disconnect Handling
@@ -449,43 +463,9 @@ def handle_ping(data):
 # ---------------------------
 # Main
 # ---------------------------
-def is_running_on_render():
-    """Check if running on Render cloud"""
-    return os.environ.get('RENDER') == 'true' or 'onrender.com' in os.environ.get('RENDER_EXTERNAL_URL', '')
-
-def start_broadcaster_agent():
-    """Start broadcaster agent in background (local only)"""
-    if is_running_on_render():
-        return  # Don't start agent on Render
-    
-    agent_path = Path(__file__).parent / 'agent' / 'broadcaster_agent.py'
-    if not agent_path.exists():
-        return
-    
-    def run_agent():
-        try:
-            time.sleep(2)  # Wait for server to start
-            subprocess.Popen([sys.executable, str(agent_path)])
-            log_event("STARTUP", "Broadcaster agent started in background")
-        except Exception as e:
-            log_event("STARTUP", f"Failed to start agent: {e}")
-    
-    agent_thread = threading.Thread(target=run_agent, daemon=True)
-    agent_thread.start()
-
 if __name__ == "__main__":
-    log_event('STARTUP', 'Starting JVPS Desktop Remote server...')
-    print("[INFO] Starting JVPS Desktop Remote server...")
+    log_event('STARTUP', 'Starting OmniStream Pro server...')
+    print("[INFO] Starting OmniStream Pro server...")
     print("[INFO] Navigate to http://localhost:5000/ to start")
     print("[INFO] Logs are being saved to logs.txt")
-    
-    # Get port from environment variable or default to 5000 for local development
-    port = int(os.environ.get('PORT', 5000))
-    debug_mode = os.environ.get('FLASK_ENV', 'development') == 'development'
-    
-    # Auto-start broadcaster agent locally
-    if not is_running_on_render():
-        start_broadcaster_agent()
-    
-    # Run socketio with gunicorn in production, debug mode in development
-    socketio.run(app, host="0.0.0.0", port=port, debug=debug_mode)
+    socketio.run(app, host="0.0.0.0", port=58247, debug=True)

@@ -1,8 +1,4 @@
 # server/app.py
-# Must be first to avoid monkey-patching conflicts
-import eventlet
-eventlet.monkey_patch()
-
 from flask import Flask, render_template, request, jsonify, session as flask_session, redirect, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import uuid
@@ -10,11 +6,6 @@ import secrets
 import hashlib
 from datetime import datetime
 from pathlib import Path
-import os
-import sys
-import subprocess
-import threading
-import time
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -110,16 +101,8 @@ def api_create_session():
     # Log the creation
     log_event("SESSION_CREATED", f"Room: {room_name} | Broadcaster: {broadcaster_name} | Device: {device_id}")
     
-    # Generate shareable links with production domain
-    # Use jvps.onrender.com as the default domain for production
-    production_domain = "http://jvps.onrender.com"
-    
-    # In development/local, use request.host_url; in production, use the domain above
-    if request.host.startswith('localhost') or request.host.startswith('127.0.0.1'):
-        base_url = request.host_url.rstrip('/')
-    else:
-        base_url = production_domain
-    
+    # Generate shareable links (assuming domain is localhost:5000, adjust as needed)
+    base_url = request.host_url.rstrip('/')
     auto_viewer_link = f"{base_url}/auto_viewer/{session_id}?pwd={password}"
     manual_viewer_link = f"{base_url}/view/{session_id}"
     
@@ -315,54 +298,10 @@ def control_input(data):
     }
     """
     session_id = data['session_id']
-    session_data = sessions.get(session_id, {})
-    
-    # Try broadcaster agent first, then fallback to broadcaster
-    broadcaster_agent_id = session_data.get('broadcaster_agent_id')
-    broadcaster_id = session_data.get('broadcaster')
-    target_id = broadcaster_agent_id or broadcaster_id
-    
-    if target_id and target_id in devices:
-        target_sid = devices[target_id]['sid']
-        emit('control_input', data['action'], room=target_sid)
-        role = "AGENT" if broadcaster_agent_id else "BROADCASTER"
-        log_event(f"CONTROL_RELAY[{role}]", f"Session: {session_id} | Action: {data['action'].get('type', 'unknown')}")
-
-# ---------------------------
-# Broadcaster Agent Registration
-# ---------------------------
-@socketio.on('register_broadcaster_agent')
-def register_broadcaster_agent(data):
-    """
-    Register a broadcaster agent running on local machine
-    data = {
-        'session_id': session_id,
-        'device_id': device_id,
-        'timestamp': datetime
-    }
-    """
-    session_id = data.get('session_id')
-    device_id = data.get('device_id')
-    timestamp = data.get('timestamp')
-    
-    # Register the broadcaster agent
-    devices[device_id] = {
-        'role': 'broadcaster_agent',
-        'sid': request.sid,
-        'approved': True,
-        'registered_at': timestamp
-    }
-    
-    # Link to session
-    if session_id in sessions:
-        sessions[session_id]['broadcaster_agent_id'] = device_id
-        emit('broadcaster_ready', {
-            'device_id': device_id,
-            'session_id': session_id
-        })
-        log_event("AGENT_REGISTERED", f"Agent: {device_id} | Session: {session_id}")
-    else:
-        log_event("AGENT_REGISTRATION_FAILED", f"Agent: {device_id} | Session {session_id} not found")
+    broadcaster_id = sessions.get(session_id, {}).get('broadcaster')
+    if broadcaster_id:
+        emit('control_input', data['action'], room=devices[broadcaster_id]['sid'])
+        log_event("CONTROL_INPUT", f"Session: {session_id} | Action: {data['action'].get('type', 'unknown')}")
 
 # ---------------------------
 # Disconnect
@@ -386,42 +325,8 @@ def disconnect():
             del devices[device_id]
 
 # ---------------------------
-# Broadcaster Agent Auto-Start
-# ---------------------------
-def is_running_on_render():
-    """Check if running on Render cloud"""
-    return os.environ.get('RENDER') == 'true' or 'onrender.com' in os.environ.get('RENDER_EXTERNAL_URL', '')
-
-def start_broadcaster_agent():
-    """Start broadcaster agent in background (local only)"""
-    if is_running_on_render():
-        return  # Don't start agent on Render
-    
-    agent_path = Path(__file__).parent.parent / 'agent' / 'broadcaster_agent.py'
-    if not agent_path.exists():
-        return
-    
-    def run_agent():
-        try:
-            time.sleep(2)  # Wait for server to start
-            subprocess.Popen([sys.executable, str(agent_path)], 
-                           stdout=subprocess.PIPE, 
-                           stderr=subprocess.PIPE)
-            log_event("STARTUP", "Broadcaster agent started in background")
-        except Exception as e:
-            log_event("STARTUP", f"Failed to start agent: {e}")
-    
-    agent_thread = threading.Thread(target=run_agent, daemon=True)
-    agent_thread.start()
-
-# ---------------------------
 # Main
 # ---------------------------
 if __name__ == '__main__':
     log_event("STARTUP", "OmniStream Pro server starting on 0.0.0.0:58247")
-    
-    # Auto-start broadcaster agent locally
-    if not is_running_on_render():
-        start_broadcaster_agent()
-    
     socketio.run(app, host='0.0.0.0', port=58247, debug=True)

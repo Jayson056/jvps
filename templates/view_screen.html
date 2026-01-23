@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JVPS Desktop Remote — Live View</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>OmniStream Pro — Remote</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
     <style>
         :root {
@@ -90,13 +89,13 @@
     <div class="stage">
         <video id="remoteVideo" autoplay muted playsinline></video>
         <div id="loadingIndicator" style="position: absolute; text-align: center; color: #999;">
-            <div style="font-size: 16px;"><i class="fas fa-spinner fa-spin"></i> Connecting to remote device...</div>
+            <div style="font-size: 14px;">⏳ Waiting for broadcast...</div>
         </div>
     </div>
 
     <div id="mousePad">
-        <div class="pad-label"><i class="fas fa-hand-paper"></i> Touchpad Mode (Drag to move, Tap to click)</div>
-        <button id="closePad" style="position:absolute; right:15px; top:10px; color:var(--text); background:none; border:none; font-size: 20px;"><i class="fas fa-times"></i></button>
+        <div class="pad-label">Touchpad Mode (Drag to move, Tap to click)</div>
+        <button id="closePad" style="position:absolute; right:15px; top:10px; color:var(--text); background:none; border:none; font-size: 20px;">✕</button>
     </div>
 
     <nav class="toolbar" id="mainToolbar">

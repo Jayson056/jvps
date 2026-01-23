@@ -9,14 +9,14 @@ const originalConnect = socket.on;
 
 socket.on('connect', () => {
     console.log("[INFO] Connected to server");
-    updateStatus('Connecting to device...', 'connecting');
+    updateStatus('Connecting...', 'connecting');
     socket.emit('register_device', { role: 'viewer', device_id: null });
 });
 
 socket.on('device_registered', (data) => {
     deviceId = data.device_id;
     console.log("[INFO] Viewer registered with ID:", deviceId);
-    updateStatus('Joining session...', 'connecting');
+    updateStatus('Registered, Joining Session...', 'connecting');
 
     if (sessionId) {
         console.log("[INFO] Joining session:", sessionId);
@@ -31,17 +31,17 @@ socket.on('device_registered', (data) => {
 socket.on('viewer_approved', (data) => {
     if (data.approved) {
         console.log("[INFO] Approved! Starting WebRTC...");
-        updateStatus('Connected to device', 'connected');
+        updateStatus('Connected', 'connected');
         startWebRTC();
     } else {
-        alert("Access denied by remote device.");
+        alert("Access denied by broadcaster.");
         updateStatus('Access Denied', 'disconnected');
     }
 });
 
 socket.on('disconnect', () => {
     console.log("[WARNING] Disconnected from server");
-    updateStatus('Connection Lost', 'disconnected');
+    updateStatus('Disconnected', 'disconnected');
 });
 
 // Status update function
@@ -53,7 +53,7 @@ function updateStatus(text, status) {
         dot.className = 'status-dot ' + status;
     }
     if (label) {
-        label.innerHTML = text;
+        label.textContent = text;
     }
 }
 
@@ -70,7 +70,7 @@ socket.on('pong_response', (data) => {
     const avgLatency = Math.round(latencyHistory.reduce((a, b) => a + b, 0) / latencyHistory.length);
     const latencyDisplay = document.getElementById('latency');
     if (latencyDisplay) {
-        latencyDisplay.innerHTML = `<i class="fas fa-tachometer-alt"></i> Latency: ${avgLatency}ms`;
+        latencyDisplay.textContent = `Latency: ${avgLatency}ms`;
     }
 });
 
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleMouseBtn) {
         toggleMouseBtn.addEventListener('click', () => {
             mouseEnabled = !mouseEnabled;
-            toggleMouseBtn.innerHTML = `<i class="fas fa-mouse"></i> Mouse: ${mouseEnabled ? 'ON' : 'OFF'}`;
+            toggleMouseBtn.innerHTML = `🖱️ Mouse: ${mouseEnabled ? 'ON' : 'OFF'}`;
             toggleMouseBtn.classList.toggle('btn-primary');
             toggleMouseBtn.classList.toggle('btn-warning');
         });
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleKbdBtn) {
         toggleKbdBtn.addEventListener('click', () => {
             kbdEnabled = !kbdEnabled;
-            toggleKbdBtn.innerHTML = `<i class="fas fa-keyboard"></i> Keyboard: ${kbdEnabled ? 'ON' : 'OFF'}`;
+            toggleKbdBtn.innerHTML = `⌨️ Kbd: ${kbdEnabled ? 'ON' : 'OFF'}`;
             toggleKbdBtn.classList.toggle('btn-primary');
             toggleKbdBtn.classList.toggle('btn-warning');
         });
