@@ -7,7 +7,10 @@ import time
 import secrets
 import hashlib
 import os
+import sys
+import subprocess
 from datetime import datetime
+from pathlib import Path
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -446,6 +449,32 @@ def handle_ping(data):
 # ---------------------------
 # Main
 # ---------------------------
+def is_running_on_render():
+    """Check if running on Render cloud"""
+    return os.environ.get('RENDER') == 'true' or 'onrender.com' in os.environ.get('RENDER_EXTERNAL_URL', '')
+
+def start_broadcaster_agent():
+    """Start broadcaster agent in background (local only)"""
+    if is_running_on_render():
+        return  # Don't start agent on Render
+    
+    agent_path = Path(__file__).parent / 'agent' / 'broadcaster_agent.py'
+    if not agent_path.exists():
+        return
+    
+    def run_agent():
+        try:
+            time.sleep(2)  # Wait for server to start
+            subprocess.Popen([sys.executable, str(agent_path)], 
+                           stdout=subprocess.PIPE, 
+                           stderr=subprocess.PIPE)
+            log_event("STARTUP", "Broadcaster agent started in background")
+        except Exception as e:
+            log_event("STARTUP", f"Failed to start agent: {e}")
+    
+    agent_thread = threading.Thread(target=run_agent, daemon=True)
+    agent_thread.start()
+
 if __name__ == "__main__":
     log_event('STARTUP', 'Starting JVPS Desktop Remote server...')
     print("[INFO] Starting JVPS Desktop Remote server...")
@@ -455,6 +484,10 @@ if __name__ == "__main__":
     # Get port from environment variable or default to 5000 for local development
     port = int(os.environ.get('PORT', 5000))
     debug_mode = os.environ.get('FLASK_ENV', 'development') == 'development'
+    
+    # Auto-start broadcaster agent locally
+    if not is_running_on_render():
+        start_broadcaster_agent()
     
     # Run socketio with gunicorn in production, debug mode in development
     socketio.run(app, host="0.0.0.0", port=port, debug=debug_mode)
