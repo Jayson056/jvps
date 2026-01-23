@@ -3,7 +3,6 @@ from flask import Flask, render_template, request, jsonify, session as flask_ses
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import uuid
 import threading
-import pyautogui
 import time
 import secrets
 import hashlib
@@ -11,6 +10,13 @@ import os
 from datetime import datetime
 from pathlib import Path
 import qrcode
+
+# Optional GUI imports - only needed for local development with agent
+try:
+    import pyautogui
+    PYAUTOGUI_AVAILABLE = True
+except ImportError:
+    PYAUTOGUI_AVAILABLE = False
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
