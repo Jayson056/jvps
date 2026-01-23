@@ -312,6 +312,42 @@ def control_input(data):
         log_event("CONTROL_INPUT", f"Session: {session_id} | Action: {data['action'].get('type', 'unknown')}")
 
 # ---------------------------
+# Broadcaster Agent Registration
+# ---------------------------
+@socketio.on('register_broadcaster_agent')
+def register_broadcaster_agent(data):
+    """
+    Register a broadcaster agent running on local machine
+    data = {
+        'session_id': session_id,
+        'device_id': device_id,
+        'timestamp': datetime
+    }
+    """
+    session_id = data.get('session_id')
+    device_id = data.get('device_id')
+    timestamp = data.get('timestamp')
+    
+    # Register the broadcaster agent
+    devices[device_id] = {
+        'role': 'broadcaster_agent',
+        'sid': request.sid,
+        'approved': True,
+        'registered_at': timestamp
+    }
+    
+    # Link to session
+    if session_id in sessions:
+        sessions[session_id]['broadcaster_agent_id'] = device_id
+        emit('broadcaster_ready', {
+            'device_id': device_id,
+            'session_id': session_id
+        })
+        log_event("AGENT_REGISTERED", f"Agent: {device_id} | Session: {session_id}")
+    else:
+        log_event("AGENT_REGISTRATION_FAILED", f"Agent: {device_id} | Session {session_id} not found")
+
+# ---------------------------
 # Disconnect
 # ---------------------------
 @socketio.on('disconnect')

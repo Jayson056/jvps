@@ -1,103 +1,107 @@
+#!/usr/bin/env python3
 """
-JVPS Desktop Broadcaster Agent
-================================
-This is a LOCAL client that runs on the broadcaster's machine.
-It handles:
-1. Desktop screen capture
-2. Mouse and keyboard control
-3. WebRTC peer connection
-4. Communication with the Render relay server
+JVPS Broadcaster Agent - Simple Version
+=========================================
+Runs on the broadcaster's local machine.
+Connects to Render relay server and receives control commands.
+Executes mouse/keyboard control on the local desktop.
 
-This runs on the broadcaster's computer (Windows/Mac/Linux), NOT on Render.
-The Render server only handles signaling relay.
+Usage:
+  python broadcaster_agent.py
 """
 
 import pyautogui
-import mss
-import numpy as np
-import io
-from PIL import Image
 import socketio
 import threading
-import json
-import os
-import uuid
 import time
+import os
 from datetime import datetime
 
-# Initialize Socket.IO client
-sio = socketio.Client(reconnection=True, reconnection_attempts=5, reconnection_delay=2)
+# Disable PyAutoGUI failsafe (optional - press Ctrl+C to stop instead)
+pyautogui.FAILSAFE = False
+pyautogui.PAUSE = 0.05  # Delay between commands
 
 # Configuration
 RENDER_SERVER = os.environ.get('RENDER_SERVER', 'https://jvps.onrender.com')
-SESSION_ID = None
-DEVICE_ID = None
-PASSWORD = None
+MOUSE_SPEED = 0.1  # Duration for mouse movement
 
-# Desktop capture
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1080
-FPS = 30
-MOUSE_SPEED = 0.1
+# Socket.IO client
+sio = socketio.Client(reconnection=True, reconnection_attempts=10, reconnection_delay=3)
 
-# PyAutoGUI configuration
-pyautogui.FAILSAFE = True  # Press ESC in top-left corner to stop
-pyautogui.PAUSE = 0.01  # Minimum delay between commands
+# Global state
+connected = False
+broadcaster_registered = False
+session_id = None
+device_id = None
 
-print("=" * 70)
-print("JVPS Desktop Broadcaster Agent")
+print("\n" + "=" * 70)
+print("🎬 JVPS Broadcaster Agent")
 print("=" * 70)
 print(f"Server: {RENDER_SERVER}")
-print(f"Python: {__name__}")
-print("=" * 70)
+print("=" * 70 + "\n")
 
 # ---------------------------
-# Screen Capture Functions
+# Control Execution Functions
 # ---------------------------
-def capture_screen():
-    """Capture the current screen"""
-    try:
-        with mss.mss() as sct:
-            # Capture primary monitor
-            monitor = sct.monitors[1]
-            screenshot = sct.grab(monitor)
-            
-            # Convert to PIL Image
-            img = Image.frombytes('RGB', (screenshot.width, screenshot.height), screenshot.rgb)
-            
-            # Encode to JPEG for WebRTC
-            buffer = io.BytesIO()
-            img.save(buffer, format='JPEG', quality=80)
-            buffer.seek(0)
-            
-            return buffer.getvalue()
-    except Exception as e:
-        print(f"[ERROR] Screen capture failed: {e}")
-        return None
 
-# ---------------------------
-# Desktop Control Functions
-# ---------------------------
-def execute_mouse_control(data):
+def execute_mouse_command(data):
     """Execute mouse control command"""
     try:
+        action = data.get('action', 'move')
         x = data.get('x')
         y = data.get('y')
         button = data.get('button', 'left')
-        action = data.get('action', 'move')  # move, click, drag
         
         if action == 'move' and x is not None and y is not None:
             pyautogui.moveTo(x, y, duration=MOUSE_SPEED)
-            print(f"[MOUSE] Moved to ({x}, {y})")
+            print(f"  🖱️ MOUSE: Moved to ({x}, {y})")
             
         elif action == 'click' and x is not None and y is not None:
             pyautogui.click(x, y, button=button)
-            print(f"[MOUSE] Clicked {button} at ({x}, {y})")
+            print(f"  🖱️ MOUSE: Clicked {button} at ({x}, {y})")
             
         elif action == 'drag' and x is not None and y is not None:
-            duration = data.get('duration', 0.5)
+            duration = data.get('duration', 0.3)
             pyautogui.drag(x, y, duration=duration, button=button)
-            print(f"[MOUSE] Dragged {button} to ({x}, {y})")
+            print(f"  🖱️ MOUSE: Dragged to ({x}, {y})")
+            
+        elif action == 'scroll':
+            direction = data.get('direction', 'down')
+            amount = data.get('amount', 3)
+            if direction == 'up':
+                pyautogui.scroll(amount)
+                print(f"  🖱️ MOUSE: Scrolled UP")
+            else:
+                pyautogui.scroll(-amount)
+                print(f"  🖱️ MOUSE: Scrolled DOWN")
+                
+    except Exception as e:
+        print(f"  ❌ Mouse error: {e}")
+
+def execute_keyboard_command(data):
+    """Execute keyboard control command"""
+    try:
+        action = data.get('action', 'press')
+        key = data.get('key', '').lower()
+        
+        if not key:
+            return
+        
+        if action == 'press':
+            pyautogui.press(key)
+            print(f"  ⌨️  KEYBOARD: Pressed {key}")
+            
+        elif action == 'down':
+            pyautogui.keyDown(key)
+            print(f"  ⌨️  KEYBOARD: Key down {key}")
+            
+        elif action == 'up':
+            pyautogui.keyUp(key)
+            print(f"  ⌨️  KEYBOARD: Key up {key}")
+            
+        elif action == 'type':
+            pyautogui.typewrite(key, interval=0.05)
+            print(f"  ⌨️  KEYBOARD: Typed '{key}'")
             
         elif action == 'scroll':
             direction = data.get('direction', 'down')
@@ -109,175 +113,183 @@ def execute_mouse_control(data):
             print(f"[MOUSE] Scrolled {direction}")
             
     except Exception as e:
-        print(f"[ERROR] Mouse control failed: {e}")
-
-def execute_keyboard_control(data):
-    """Execute keyboard control command"""
-    try:
-        key = data.get('key', '').lower()
-        action = data.get('action', 'press')  # press, down, up, type
-        
-        if action == 'type' and key:
-            pyautogui.typewrite(key, interval=0.05)
-            print(f"[KEYBOARD] Typed: {key}")
-            
-        elif action == 'press' and key:
-            pyautogui.press(key)
-            print(f"[KEYBOARD] Pressed: {key}")
-            
-        elif action == 'down' and key:
-            pyautogui.keyDown(key)
-            print(f"[KEYBOARD] Key down: {key}")
-            
-        elif action == 'up' and key:
-            pyautogui.keyUp(key)
-            print(f"[KEYBOARD] Key up: {key}")
-            
-        elif action == 'hotkey':
-            # Example: 'ctrl+c', 'cmd+v', 'alt+tab'
-            keys = key.split('+')
-            pyautogui.hotkey(*keys)
-            print(f"[KEYBOARD] Hotkey: {key}")
-            
-    except Exception as e:
-        print(f"[ERROR] Keyboard control failed: {e}")
+        print(f"  ❌ Keyboard error: {e}")
 
 # ---------------------------
 # Socket.IO Event Handlers
 # ---------------------------
+
 @sio.on('connect')
 def on_connect():
-    print("[SOCKET.IO] Connected to Render server")
+    global connected
+    connected = True
+    timestamp = datetime.now().strftime('%H:%M:%S')
+    print(f"[{timestamp}] ✅ Connected to Render server")
 
 @sio.on('disconnect')
 def on_disconnect():
-    print("[SOCKET.IO] Disconnected from server")
-
-@sio.on('broadcaster_registered')
-def on_broadcaster_registered(data):
-    """Confirmation that broadcaster was registered on server"""
-    global DEVICE_ID, SESSION_ID
-    DEVICE_ID = data.get('device_id')
-    SESSION_ID = data.get('session_id')
-    print(f"[BROADCASTER] Registered - Device: {DEVICE_ID}, Session: {SESSION_ID}")
+    global connected, broadcaster_registered
+    connected = False
+    broadcaster_registered = False
+    timestamp = datetime.now().strftime('%H:%M:%S')
+    print(f"[{timestamp}] ❌ Disconnected from server")
 
 @sio.on('control_input')
 def on_control_input(data):
-    """Receive control input from viewer via relay server"""
+    """Main event handler - receives control commands from Render"""
+    timestamp = datetime.now().strftime('%H:%M:%S')
+    print(f"[{timestamp}] 📨 Control received:")
+    
     control_type = data.get('type')
     control_data = data.get('data', {})
     
     if control_type == 'mouse':
-        execute_mouse_control(control_data)
+        execute_mouse_command(control_data)
     elif control_type == 'keyboard':
-        execute_keyboard_control(control_data)
+        execute_keyboard_command(control_data)
     else:
-        print(f"[WARNING] Unknown control type: {control_type}")
+        print(f"  ⚠️  Unknown control type: {control_type}")
 
-@sio.on('signal_from_viewer')
-def on_signal_from_viewer(data):
-    """Relay WebRTC signal from viewer"""
-    print(f"[WEBRTC] Signal from viewer: {data.get('type', 'unknown')}")
-    # In full implementation, would process WebRTC signals here
+@sio.on('error')
+def on_error(data):
+    timestamp = datetime.now().strftime('%H:%M:%S')
+    print(f"[{timestamp}] ⚠️  Server error: {data}")
+
+@sio.on('broadcaster_ready')
+def on_broadcaster_ready(data):
+    global broadcaster_registered
+    broadcaster_registered = True
+    timestamp = datetime.now().strftime('%H:%M:%S')
+    print(f"[{timestamp}] ✅ Broadcaster registered!")
+    print(f"     Device ID: {data.get('device_id')}")
+    print(f"     Session ID: {data.get('session_id')}")
 
 # ---------------------------
 # Connection Management
 # ---------------------------
-def connect_to_server(session_id, password, room_name):
+
+def connect_to_render(session_id_input, password_input):
     """Connect to Render relay server"""
-    global SESSION_ID
-    SESSION_ID = session_id
+    global session_id, device_id
+    
+    session_id = session_id_input
+    device_id = session_id_input.replace('SESSION-', 'AGENT-')
+    
+    timestamp = datetime.now().strftime('%H:%M:%S')
+    print(f"[{timestamp}] 🔌 Connecting to {RENDER_SERVER}...")
     
     try:
-        print(f"\n[CONNECTING] To: {RENDER_SERVER}")
-        print(f"[SESSION] ID: {session_id}")
-        print(f"[ROOM] Name: {room_name}")
-        
-        # Connect with authentication
+        # Connect with custom auth
         sio.connect(
             RENDER_SERVER,
-            auth={'session_id': session_id, 'password': password, 'role': 'broadcaster'},
-            transports=['websocket', 'polling']
+            auth={
+                'session_id': session_id_input,
+                'password': password_input,
+                'role': 'broadcaster_agent'
+            },
+            transports=['websocket', 'polling'],
+            wait_timeout=10
         )
         
-        # Register as broadcaster
-        sio.emit('register_broadcaster', {
-            'session_id': session_id,
-            'room_name': room_name,
-            'device_id': str(uuid.uuid4())
+        # Emit registration
+        sio.emit('register_broadcaster_agent', {
+            'session_id': session_id_input,
+            'device_id': device_id,
+            'timestamp': datetime.now().isoformat()
         })
         
-        print("[STATUS] Broadcaster agent running")
-        print("[CONTROLS] Mouse and keyboard ready for control")
-        print("[INFO] Press Esc (top-left corner) to stop PyAutoGUI")
+        timestamp = datetime.now().strftime('%H:%M:%S')
+        print(f"[{timestamp}] ✅ Registration sent, waiting for confirmation...")
+        
+        return True
         
     except Exception as e:
-        print(f"[ERROR] Connection failed: {e}")
+        timestamp = datetime.now().strftime('%H:%M:%S')
+        print(f"[{timestamp}] ❌ Connection failed: {e}")
+        print("\n     Troubleshooting:")
+        print("     1. Check Render server is online: https://jvps.onrender.com")
+        print("     2. Verify Session ID is correct")
+        print("     3. Verify Password is correct")
+        print("     4. Check your internet connection")
         return False
-    
-    return True
 
-def send_heartbeat():
-    """Send periodic heartbeat to keep connection alive"""
+def keep_alive():
+    """Send periodic keep-alive messages"""
     while True:
         try:
-            if sio.connected:
-                sio.emit('heartbeat', {'timestamp': datetime.now().isoformat()})
+            if connected and broadcaster_registered:
+                sio.emit('agent_heartbeat', {
+                    'timestamp': datetime.now().isoformat()
+                }, skip_sid=True)
             time.sleep(30)
         except Exception as e:
-            print(f"[ERROR] Heartbeat failed: {e}")
+            pass
 
 # ---------------------------
 # Main
 # ---------------------------
+
 def main():
-    """Main broadcaster agent loop"""
+    """Main loop"""
+    print("📝 Enter your Render session credentials:\n")
+    
+    session_id_input = input("  Session ID (SESSION-XXXXXX): ").strip()
+    password_input = input("  Password (XXXXXXXX): ").strip()
+    
+    if not session_id_input or not password_input:
+        print("\n❌ Session ID and password are required!")
+        return 1
+    
     print("\n" + "=" * 70)
-    print("JVPS Broadcaster Agent - Desktop Control")
-    print("=" * 70)
-    print(f"Server: {RENDER_SERVER}")
-    print("=" * 70 + "\n")
     
-    # Get session details
-    session_id = input("📱 Enter Session ID (from Render): ").strip()
-    password = input("🔐 Enter Password (from Render): ").strip()
-    room_name = input("🏠 Enter Room Name (optional): ").strip() or "Shared Screen"
+    # Connect
+    if not connect_to_render(session_id_input, password_input):
+        return 1
     
-    if not session_id or not password:
-        print("[ERROR] Session ID and password are required!")
-        return
+    # Wait for connection
+    for i in range(10):
+        if connected:
+            break
+        time.sleep(1)
     
-    print("\n[INFO] Connecting to Render relay server...")
+    if not connected:
+        print("\n❌ Failed to connect")
+        return 1
     
-    # Connect to Render relay server
-    if not connect_to_server(session_id, password, room_name):
-        print("[ERROR] Failed to connect to relay server")
-        print("[INFO] Make sure:")
-        print("  1. Render server is running at: " + RENDER_SERVER)
-        print("  2. Session ID is correct")
-        print("  3. Password is correct")
-        return
-    
-    # Start heartbeat thread
-    heartbeat_thread = threading.Thread(target=send_heartbeat, daemon=True)
+    # Start keep-alive thread
+    heartbeat_thread = threading.Thread(target=keep_alive, daemon=True)
     heartbeat_thread.start()
     
-    # Keep the agent running
+    # Wait for registration
+    for i in range(5):
+        if broadcaster_registered:
+            break
+        time.sleep(1)
+    
+    if not broadcaster_registered:
+        print("⚠️  Not registered yet, but will listen for commands...")
+    
+    print("\n" + "=" * 70)
+    print("✅ BROADCASTER AGENT IS RUNNING")
+    print("=" * 70)
+    print("📱 Your iPhone/Browser can now control this desktop!")
+    print("⌨️  Waiting for control commands...")
+    print("🛑 Press Ctrl+C to stop")
+    print("=" * 70 + "\n")
+    
+    # Main loop
     try:
-        print("\n" + "=" * 70)
-        print("✅ Broadcaster Agent is RUNNING")
-        print("=" * 70)
-        print("[INFO] Mouse and keyboard control is now ACTIVE")
-        print("[INFO] iPhone/Browser can now control your desktop!")
-        print("[INFO] Press Ctrl+C to stop")
-        print("=" * 70 + "\n")
-        
-        while sio.connected:
+        while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\n[INFO] Shutting down broadcaster agent...")
+        print("\n\n🛑 Shutting down...")
         sio.disconnect()
-        print("[INFO] Disconnected. Goodbye!")
+        print("✅ Disconnected. Goodbye!")
+        return 0
+
+if __name__ == '__main__':
+    import sys
+    sys.exit(main())
 
 if __name__ == '__main__':
     main()
