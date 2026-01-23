@@ -90,6 +90,12 @@
             </div>
             <button class="copy-btn" onclick="copyPassword()" style="background: #e74c3c;">📋 Copy Password</button>
 
+            <!-- QR Code Delete Section -->
+            <h3 style="margin-top: 25px; color: #f39c12;">🔄 QR Code Management:</h3>
+            <p style="color: #ccc; font-size: 0.95rem;">The QR code from setup is stored in <code>tempImQr/qr1.png</code></p>
+            <button class="copy-btn" onclick="deleteQrCode()" style="background: #f39c12; margin-top: 10px;">🗑️ Delete QR Code File</button>
+            <div id="qrDeleteStatus" style="margin-top: 10px; color: #7f8c8d; font-size: 0.9rem; font-style: italic;"></div>
+
             <h3 style="margin-top: 25px;">🌐 Share These Links with Viewers:</h3>
             
             <p><strong>Auto-Connect Link (viewers auto-joined):</strong></p>
@@ -173,6 +179,33 @@
             }).catch(() => {
                 alert('Failed to copy. Please copy manually.');
             });
+        }
+
+        function deleteQrCode() {
+            const deviceId = window.deviceId;
+            const statusDiv = document.getElementById('qrDeleteStatus');
+            
+            // Show loading state
+            statusDiv.textContent = '⏳ Deleting QR code...';
+            statusDiv.style.color = '#f39c12';
+            
+            fetch(`/delete_qr_device/${deviceId}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        statusDiv.textContent = '✓ QR code deleted successfully from tempImQr/';
+                        statusDiv.style.color = '#27ae60';
+                        console.log('✓ QR Code deleted:', result.message);
+                    } else {
+                        statusDiv.textContent = '✓ ' + (result.message || result.error || 'QR code processing complete');
+                        statusDiv.style.color = '#3498db';
+                    }
+                })
+                .catch(err => {
+                    statusDiv.textContent = '✗ Error deleting QR code: ' + err.message;
+                    statusDiv.style.color = '#e74c3c';
+                    console.error('✗ Error:', err);
+                });
         }
     </script>
     

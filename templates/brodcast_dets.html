@@ -469,13 +469,21 @@ Instructions:
                 document.getElementById('passwordDisplay').textContent = data.password;
                 document.getElementById('deviceIdDisplay').textContent = data.device_id;
                 
-                // Display QR code
+                // Display QR code with cache busting
                 if (data.qr_code) {
                     const qrImg = document.getElementById('qrCodeDisplay');
                     const qrSection = document.getElementById('qrCodeSection');
                     
-                    // Set the image source URL
-                    qrImg.src = data.qr_code;  // e.g., /qr1.png
+                    // Add timestamp to prevent caching
+                    const cacheBuster = '?t=' + new Date().getTime();
+                    qrImg.src = data.qr_code + cacheBuster;  // e.g., /qr1.png?t=1234567890
+                    qrImg.onerror = function() {
+                        console.error('✗ Failed to load QR code image');
+                        qrImg.alt = 'Failed to load QR code';
+                    };
+                    qrImg.onload = function() {
+                        console.log('✓ QR code image loaded successfully');
+                    };
                     qrSection.style.display = 'block';
                     
                     console.log('✓ QR Code URL set to:', data.qr_code);

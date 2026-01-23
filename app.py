@@ -1,5 +1,5 @@
 # server/app.py
-from flask import Flask, render_template, request, jsonify, session as flask_session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session as flask_session, redirect, url_for, send_file
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import uuid
 import threading
@@ -9,6 +9,8 @@ import secrets
 import hashlib
 import os
 from datetime import datetime
+from pathlib import Path
+import qrcode
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -23,9 +25,19 @@ def log_event(event_type, message):
     """Log events to logs.txt file"""
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     log_message = f"[{timestamp}] [{event_type}] {message}\n"
-    with open(LOG_FILE, 'a') as f:
-        f.write(log_message)
-    print(log_message.strip())
+    try:
+        with open(LOG_FILE, 'a', encoding='utf-8') as f:
+            f.write(log_message)
+    except Exception as e:
+        print(f"[LOG_ERROR] Failed to write to log file: {e}")
+    
+    # Handle console print with encoding fallback
+    try:
+        print(log_message.strip())
+    except UnicodeEncodeError:
+        # Fallback: encode to ASCII with error handling
+        safe_message = log_message.encode('ascii', errors='replace').decode('ascii')
+        print(safe_message.strip())
 
 # ---------------------------
 # Device registry and sessions
@@ -51,6 +63,55 @@ def generate_password():
 def hash_password(password):
     """Generate SHA256 hash of password"""
     return hashlib.sha256(password.encode()).hexdigest()
+
+def generate_qrcode_file(password):
+    """Generate QR code and save as qr1.png to tempImQr folder, return URL"""
+    try:
+        # Create tempImQr directory if it doesn't exist
+        temp_dir = Path('tempImQr')
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Delete old QR code if it exists (ensure fresh QR for new broadcast)
+        qr_file_path = temp_dir / "qr1.png"
+        if qr_file_path.exists():
+            try:
+                os.remove(qr_file_path)
+                log_event("QR_CODE_CLEANUP", "Removed old QR code before generating new one")
+            except Exception as cleanup_error:
+                log_event("QR_CLEANUP_ERROR", f"Failed to remove old QR: {str(cleanup_error)}")
+        
+        # Generate new QR code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(password)
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Save as qr1.png
+        img.save(qr_file_path)
+        
+        # Verify file exists
+        if qr_file_path.exists():
+            file_size = qr_file_path.stat().st_size
+            log_event("QR_CODE_SAVED", f"✓ QR code saved successfully: {qr_file_path} ({file_size} bytes)")
+            print(f"[DEBUG] QR file saved: {qr_file_path}")
+            return "/qr1.png"
+        else:
+            log_event("QR_CODE_ERROR", f"✗ QR code file not created: {qr_file_path}")
+            print(f"[ERROR] QR file was not created!")
+            return None
+    
+    except Exception as e:
+        log_event("QR_CODE_EXCEPTION", f"✗ Error generating QR code: {str(e)}")
+        print(f"[ERROR] Exception in generate_qrcode_file: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return None
 
 def save_password_to_file(device_id, room_name, broadcaster_name, session_id, password):
     """Save password and session info to password.txt file"""
@@ -204,6 +265,9 @@ def create_session():
     
     log_event('SESSION_CREATED', f'Room: {room_name}, Device: {device_id}, Session: {session_id}')
     
+    # Generate QR code and save as file
+    qr_code_url = generate_qrcode_file(password)
+    
     # Generate shareable links
     base_url = request.host_url.rstrip('/')
     auto_viewer_link = f"{base_url}/auto_viewer/{session_id}?pwd={password}"
@@ -215,12 +279,67 @@ def create_session():
         'device_id': device_id,
         'session_id': session_id,
         'password': password,
+        'qr_code': qr_code_url,
         'room_name': room_name,
         'broadcaster_name': broadcaster_name,
         'auto_viewer_link': auto_viewer_link,
         'manual_viewer_link': manual_viewer_link,
         'broadcaster_url': broadcaster_url
     })
+
+@app.route('/qr1.png')
+def serve_qr_code():
+    """Serve QR code image from tempImQr folder with cache busting"""
+    qr_file = Path('tempImQr') / 'qr1.png'
+    
+    if not qr_file.exists():
+        log_event("QR_SERVE_ERROR", f"QR code file not found: {qr_file}")
+        return "QR code not found", 404
+    
+    try:
+        # Add cache-busting headers to ensure fresh image
+        response = send_file(qr_file, mimetype='image/png')
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        log_event("QR_SERVE", f"QR code served from: {qr_file}")
+        return response
+    except Exception as e:
+        log_event("QR_SERVE_ERROR", f"Error serving QR code: {str(e)}")
+        return "Error serving QR code", 500
+
+@app.route('/delete_qr', methods=['POST'])
+def delete_qr():
+    """Delete QR code file after broadcast starts"""
+    qr_file = Path('tempImQr') / 'qr1.png'
+    
+    try:
+        if qr_file.exists():
+            os.remove(qr_file)
+            log_event("QR_CODE_DELETED", "QR code qr1.png deleted from tempImQr")
+            return jsonify({'success': True, 'message': 'QR code deleted'})
+        else:
+            log_event("QR_DELETE_NOTFOUND", "QR code file not found for deletion")
+            return jsonify({'success': False, 'message': 'QR code not found'})
+    except Exception as e:
+        log_event("QR_DELETE_ERROR", f"Error deleting QR code: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/delete_qr_device/<device_id>', methods=['POST'])
+def delete_qr_device(device_id):
+    """Delete QR code for a specific device/session - called from brodview_screen"""
+    qr_file = Path('tempImQr') / 'qr1.png'
+    
+    try:
+        if qr_file.exists():
+            os.remove(qr_file)
+            log_event("QR_CODE_DELETED", f"QR code deleted for device: {device_id}")
+            return jsonify({'success': True, 'message': 'QR code deleted successfully'})
+        else:
+            return jsonify({'success': True, 'message': 'QR code not found (already deleted)'})
+    except Exception as e:
+        log_event("QR_DELETE_ERROR", f"Error deleting QR code for device {device_id}: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/broadcast/<device_id>')
 def brodview_screen(device_id):
@@ -468,4 +587,4 @@ if __name__ == "__main__":
     print("[INFO] Starting OmniStream Pro server...")
     print("[INFO] Navigate to http://localhost:5000/ to start")
     print("[INFO] Logs are being saved to logs.txt")
-    socketio.run(app, host="0.0.0.0", port=58247, debug=True)
+    socketio.run(app, host="0.0.0.0", port=58247, debug=False, use_reloader=False)

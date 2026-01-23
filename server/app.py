@@ -39,28 +39,52 @@ def hash_password(password):
 
 def generate_qrcode_file(password):
     """Generate QR code and save as qr1.png to tempImQr folder, return URL"""
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(password)
-    qr.make(fit=True)
+    try:
+        # Create tempImQr directory if it doesn't exist
+        temp_dir = Path(__file__).parent.parent / 'tempImQr'
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Delete old QR code if it exists (ensure fresh QR for new broadcast)
+        qr_file_path = temp_dir / "qr1.png"
+        if qr_file_path.exists():
+            try:
+                os.remove(qr_file_path)
+                log_event("QR_CODE_CLEANUP", "Removed old QR code before generating new one")
+            except Exception as cleanup_error:
+                log_event("QR_CLEANUP_ERROR", f"Failed to remove old QR: {str(cleanup_error)}")
+        
+        # Generate new QR code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(password)
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Save as qr1.png
+        img.save(qr_file_path)
+        
+        # Verify file exists
+        if qr_file_path.exists():
+            file_size = qr_file_path.stat().st_size
+            log_event("QR_CODE_SAVED", f"✓ QR code saved successfully: {qr_file_path} ({file_size} bytes)")
+            print(f"[DEBUG] QR file saved: {qr_file_path}")
+            return "/qr1.png"
+        else:
+            log_event("QR_CODE_ERROR", f"✗ QR code file not created: {qr_file_path}")
+            print(f"[ERROR] QR file was not created!")
+            return None
     
-    img = qr.make_image(fill_color="black", back_color="white")
-    
-    # Create tempImQr directory if it doesn't exist
-    temp_dir = Path(__file__).parent.parent / 'tempImQr'
-    os.makedirs(temp_dir, exist_ok=True)
-    
-    # Always save as qr1.png
-    qr_file_path = temp_dir / "qr1.png"
-    img.save(qr_file_path)
-    
-    log_event("QR_CODE_SAVED", f"QR code saved to: {qr_file_path}")
-    
-    return "/qr1.png"
+    except Exception as e:
+        log_event("QR_CODE_EXCEPTION", f"✗ Error generating QR code: {str(e)}")
+        print(f"[ERROR] Exception in generate_qrcode_file: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return None
 
 
 
@@ -161,17 +185,23 @@ def view_list():
 
 @app.route('/qr1.png')
 def serve_qr_code():
-    """Serve QR code image from tempImQr folder"""
+    """Serve QR code image from tempImQr folder with cache busting"""
     from flask import send_file
     
     qr_file = Path(__file__).parent.parent / 'tempImQr' / 'qr1.png'
     
     if not qr_file.exists():
-        # Return a placeholder or 404
+        log_event("QR_SERVE_ERROR", f"QR code file not found: {qr_file}")
         return "QR code not found", 404
     
     try:
-        return send_file(qr_file, mimetype='image/png')
+        # Add cache-busting headers to ensure fresh image
+        response = send_file(qr_file, mimetype='image/png')
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        log_event("QR_SERVE", f"QR code served from: {qr_file}")
+        return response
     except Exception as e:
         log_event("QR_SERVE_ERROR", f"Error serving QR code: {str(e)}")
         return "Error serving QR code", 500
@@ -184,13 +214,30 @@ def delete_qr():
     try:
         if qr_file.exists():
             os.remove(qr_file)
-            log_event("QR_CODE_DELETED", "QR code qr1.png deleted")
+            log_event("QR_CODE_DELETED", "QR code qr1.png deleted from tempImQr")
             return jsonify({'success': True, 'message': 'QR code deleted'})
         else:
+            log_event("QR_DELETE_NOTFOUND", "QR code file not found for deletion")
             return jsonify({'success': False, 'message': 'QR code not found'})
     except Exception as e:
         log_event("QR_DELETE_ERROR", f"Error deleting QR code: {str(e)}")
         return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/delete_qr_device/<device_id>', methods=['POST'])
+def delete_qr_device(device_id):
+    """Delete QR code for a specific device/session - called from brodview_screen"""
+    qr_file = Path(__file__).parent.parent / 'tempImQr' / 'qr1.png'
+    
+    try:
+        if qr_file.exists():
+            os.remove(qr_file)
+            log_event("QR_CODE_DELETED", f"QR code deleted for device: {device_id}")
+            return jsonify({'success': True, 'message': 'QR code deleted successfully'})
+        else:
+            return jsonify({'success': True, 'message': 'QR code not found (already deleted)'})
+    except Exception as e:
+        log_event("QR_DELETE_ERROR", f"Error deleting QR code for device {device_id}: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/view_list')
 def view_list():
