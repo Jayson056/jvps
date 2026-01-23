@@ -22,8 +22,9 @@ pyautogui.FAILSAFE = True
 # ---------------------------
 # GLOBALS
 # ---------------------------
-# Generate a unique ID for this hardware instance
-device_id = str(uuid.uuid4())
+# Get device_id from command line argument (passed by the web UI)
+# Usage: python screenshare.py <broadcaster_id>
+device_id = sys.argv[1] if len(sys.argv) > 1 else str(uuid.uuid4())
 sio = socketio.Client()
 approved_viewers = set()
 
@@ -90,6 +91,7 @@ def keep_alive():
 def connect():
     print(f"[INFO] Connected to server at {SERVER_URL}")
     # Register the agent with the server using our device_id
+    print(f"[INFO] Registering device with ID: {device_id}")
     sio.emit('register_device', {'role': ROLE, 'device_id': device_id})
     
 @sio.on('device_registered')
@@ -103,6 +105,7 @@ def on_control_input(data):
     """
     Triggered whenever the server relays a control event from a viewer.
     """
+    print(f"[INFO] Control input received: {data}")
     execute_control(data)
 
 @sio.on('viewer_request')
@@ -144,6 +147,8 @@ def connect_to_server():
 # ---------------------------
 if __name__ == '__main__':
     print(f"[INFO] Starting Broadcaster Agent on {platform.system()}")
+    print(f"[INFO] Device ID: {device_id}")
+    print(f"[INFO] Server URL: {SERVER_URL}")
     print(f"[INFO] Local Screen Resolution: {pyautogui.size()}")
 
     # 1. Start heartbeat thread

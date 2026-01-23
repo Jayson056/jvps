@@ -3,27 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniStream Pro — Broadcaster Preview</title>
+    <title>JVPS Desktop Remote — Broadcasting Active</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+    <style>
+        .info-panel {
+            background: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .device-id-box {
+            background: #1a1a1a;
+            border: 1px solid #3498db;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+        
+        .status-banner {
+            background: #27ae60;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .viewer-list li {
+            background: rgba(52, 152, 219, 0.2);
+            border-left: 3px solid #3498db;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Broadcaster Preview</h1>
-        <p style="text-align: center; color: #888;">Device ID: {{ device_id }}</p>
+        <h1><i class="fas fa-share-screen"></i> JVPS Desktop Remote — Broadcasting</h1>
+        
+        <!-- Status Banner -->
+        <div class="status-banner">
+            <i class="fas fa-check-circle"></i> Session is ACTIVE and ready for connections
+        </div>
 
+        <!-- Video Preview -->
         <div class="video-container">
-            <video id="localVideo" autoplay playsinline muted></video>
+            <video id="localVideo" autoplay playsinline muted style="background: #000;"></video>
         </div>
 
+        <!-- Control Buttons -->
         <div class="controls">
-            <button id="stopBtn" class="btn btn-danger">Stop Broadcast</button>
-            <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+            <button id="stopBtn" class="btn btn-danger"><i class="fas fa-stop-circle"></i> Stop Sharing</button>
+            <a href="{{ url_for('home') }}" class="btn btn-secondary"><i class="fas fa-home"></i> Dashboard</a>
         </div>
 
+        <!-- Connection Info -->
+        <div class="info-panel">
+            <h2><i class="fas fa-network-wired"></i> Connection Details</h2>
+            
+            <p><strong><i class="fas fa-microchip"></i> Device ID:</strong></p>
+            <div class="device-id-box">{{ device_id }}</div>
+            
+            <p><strong><i class="fas fa-id-card"></i> Session ID:</strong></p>
+            <div class="device-id-box">{{ session_id }}</div>
+            
+            <h3 style="margin-top: 25px; color: #e74c3c;">🔐 Broadcast Password (for viewers):</h3>
+            <div class="device-id-box" style="background: #c0392b; border-color: #e74c3c; font-size: 1.3rem; font-weight: bold;">
+                <span id="passwordDisplay"></span>
+            </div>
+            <button class="copy-btn" onclick="copyPassword()" style="background: #e74c3c;">📋 Copy Password</button>
+
+            <h3 style="margin-top: 25px;">🌐 Share These Links with Viewers:</h3>
+            
+            <p><strong><i class="fas fa-magic"></i> Direct Access Link:</strong></p>
+            <div class="device-id-box" style="background: #1a3a1a; border-color: #27ae60;">
+                <span id="autoViewerUrl"></span>
+            </div>
+            <button class="copy-btn" onclick="copyLink('autoViewerUrl')" style="background: #27ae60;"><i class="fas fa-copy"></i> Copy</button>
+
+            <p style="margin-top: 20px;"><strong><i class="fas fa-lock"></i> Secure Link (with Access Code):</strong></p>
+            <div class="device-id-box" style="background: #1a2a3a; border-color: #3498db;">
+                <span id="manualViewUrl"></span>
+            </div>
+            <button class="copy-btn" onclick="copyLink('manualViewUrl')" style="background: #3498db;"><i class="fas fa-copy"></i> Copy</button>
+
+            <h3 style="margin-top: 25px;"><i class="fas fa-question-circle"></i> Connection Instructions:</h3>
+            <ul>
+                <li><strong>Direct Access:</strong> Share the direct link for automatic connection without access code</li>
+                <li><strong>Secure Link:</strong> Viewers access the secure link and enter the access code</li>
+            </ul>
+        </div>
+
+        <!-- Active Viewers -->
         <div class="viewer-list">
-            <h2>Active Viewers</h2>
+            <h2><i class="fas fa-users"></i> Connected Users</h2>
             <ul id="viewerList">
-                <li id="no-viewers" style="color: #666;">Waiting for viewers to join...</li>
+                <li id="no-viewers" style="color: #888; background: transparent; border: none;"><i class="fas fa-hourglass-start"></i> Waiting for connections...</li>
             </ul>
         </div>
     </div>
@@ -31,7 +124,57 @@
     <script>
         // Critical: These variables link the HTML to your JS logic
         window.deviceId = "{{ device_id }}";
-        window.SESSION_ID = "{{ session_id }}"; 
+        window.SESSION_ID = "{{ session_id }}";
+        
+        // Set URLs and password from sessionStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            const port = window.location.port ? ':' + window.location.port : '';
+            const baseUrl = `${protocol}//${hostname}${port}`;
+            
+            // Try to get data from sessionStorage (set by brodcast_dets.html)
+            const broadcastData = sessionStorage.getItem('broadcastData');
+            
+            if (broadcastData) {
+                const data = JSON.parse(broadcastData);
+                document.getElementById('passwordDisplay').textContent = data.password;
+                document.getElementById('autoViewerUrl').textContent = data.autoViewerLink;
+                document.getElementById('manualViewUrl').textContent = data.manualViewLink;
+            } else {
+                // Fallback: construct URLs from current page data
+                const sessionId = window.SESSION_ID;
+                const deviceId = window.deviceId;
+                const autoViewerUrl = `${baseUrl}/auto_viewer/${sessionId}`;
+                const manualViewUrl = `${baseUrl}/view/${sessionId}`;
+                
+                document.getElementById('autoViewerUrl').textContent = autoViewerUrl;
+                document.getElementById('manualViewUrl').textContent = manualViewUrl;
+                document.getElementById('passwordDisplay').textContent = 'N/A';
+            }
+        });
+        
+        function copyLink(elementId) {
+            const url = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✓ Link copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy. Please copy manually.');
+            });
+        }
+        
+        function copyPassword() {
+            const password = document.getElementById('passwordDisplay').textContent;
+            if (password === 'N/A') {
+                alert('Password not available');
+                return;
+            }
+            navigator.clipboard.writeText(password).then(() => {
+                alert('✓ Password copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy. Please copy manually.');
+            });
+        }
     </script>
     
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>

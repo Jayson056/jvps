@@ -1,15 +1,28 @@
 // static/js/webrtc_viewer.js
 
+console.log('[WebRTC] Viewer script loading...');
+console.log('[WebRTC] SESSION_ID:', window.SESSION_ID);
+
+// Ensure video element exists
+let remoteVideo = document.getElementById('remoteVideo');
+if (!remoteVideo) {
+    console.error('[ERROR] remoteVideo element not found!');
+    throw new Error('Video element not found');
+}
+
+console.log('[WebRTC] Video element found:', remoteVideo);
+
 const socket = io();  // Connect to Flask Socket.IO
 let pc = null;         // RTCPeerConnection
 let deviceId = null;    // Viewer device ID
 let sessionId = window.SESSION_ID || null; // Current session from template
 let broadcasterId = null; // Will be set during signaling
-let remoteVideo = document.getElementById('remoteVideo');
 
 // Control States
 let mouseEnabled = true;
 let kbdEnabled = true;
+
+console.log('[WebRTC] Initializing Socket.IO connection...');
 
 // ---------------------------
 // 1. Socket.IO Registration
@@ -122,30 +135,103 @@ function sendControlInput(action) {
     });
 }
 
-// Optimized Mouse listener with Coordinate Scaling
-remoteVideo.addEventListener('mousemove', e => {
-    if (!mouseEnabled) return;
+// Helper function to calculate video display area accounting for aspect ratio
+function getVideoDisplayArea() {
+    if (!remoteVideo.videoWidth || !remoteVideo.videoHeight) {
+        return null;
+    }
+    
     const rect = remoteVideo.getBoundingClientRect();
+    const containerAspect = rect.width / rect.height;
+    const videoAspect = remoteVideo.videoWidth / remoteVideo.videoHeight;
+    
+    let displayWidth, displayHeight, offsetX = 0, offsetY = 0;
+    
+    if (videoAspect > containerAspect) {
+        // Video is wider than container (letterbox on top/bottom)
+        displayWidth = rect.width;
+        displayHeight = rect.width / videoAspect;
+        offsetY = (rect.height - displayHeight) / 2;
+    } else {
+        // Video is taller than container (pillarbox on sides)
+        displayHeight = rect.height;
+        displayWidth = rect.height * videoAspect;
+        offsetX = (rect.width - displayWidth) / 2;
+    }
+    
+    return { displayWidth, displayHeight, offsetX, offsetY, containerRect: rect };
+}
 
-    // Scale coordinates to actual broadcaster video resolution
-    const x = Math.floor((e.clientX - rect.left) * (remoteVideo.videoWidth / rect.width));
-    const y = Math.floor((e.clientY - rect.top) * (remoteVideo.videoHeight / rect.height));
-
-    if (!isNaN(x) && !isNaN(y)) {
+// Optimized Mouse listener with Aspect Ratio Aware Coordinate Scaling
+remoteVideo.addEventListener('mousemove', e => {
+    if (!mouseEnabled || !remoteVideo.videoWidth) return;
+    
+    const displayArea = getVideoDisplayArea();
+    if (!displayArea) return;
+    
+    const { displayWidth, displayHeight, offsetX, offsetY, containerRect } = displayArea;
+    
+    // Get cursor position relative to container
+    let cursorX = e.clientX - containerRect.left;
+    let cursorY = e.clientY - containerRect.top;
+    
+    // Check if cursor is within video display area (not in letterbox/pillarbox)
+    if (cursorX < offsetX || cursorY < offsetY || 
+        cursorX > (offsetX + displayWidth) || 
+        cursorY > (offsetY + displayHeight)) {
+        return; // Ignore clicks outside video area
+    }
+    
+    // Calculate relative position within video display area (0-1)
+    const relativeX = (cursorX - offsetX) / displayWidth;
+    const relativeY = (cursorY - offsetY) / displayHeight;
+    
+    // Map to actual video resolution
+    const x = Math.floor(relativeX * remoteVideo.videoWidth);
+    const y = Math.floor(relativeY * remoteVideo.videoHeight);
+    
+    // Validate coordinates
+    if (!isNaN(x) && !isNaN(y) && x >= 0 && y >= 0 && 
+        x < remoteVideo.videoWidth && y < remoteVideo.videoHeight) {
         sendControlInput({ type: 'mouse', data: { x, y, move: true } });
     }
 });
 
 remoteVideo.addEventListener('click', e => {
-    if (!mouseEnabled) return;
-    const rect = remoteVideo.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) * (remoteVideo.videoWidth / rect.width));
-    const y = Math.floor((e.clientY - rect.top) * (remoteVideo.videoHeight / rect.height));
-
-    sendControlInput({
-        type: 'mouse',
-        data: { x, y, click: true, button: 'left' }
-    });
+    if (!mouseEnabled || !remoteVideo.videoWidth) return;
+    
+    const displayArea = getVideoDisplayArea();
+    if (!displayArea) return;
+    
+    const { displayWidth, displayHeight, offsetX, offsetY, containerRect } = displayArea;
+    
+    // Get cursor position relative to container
+    let cursorX = e.clientX - containerRect.left;
+    let cursorY = e.clientY - containerRect.top;
+    
+    // Check if cursor is within video display area
+    if (cursorX < offsetX || cursorY < offsetY || 
+        cursorX > (offsetX + displayWidth) || 
+        cursorY > (offsetY + displayHeight)) {
+        return; // Ignore clicks outside video area
+    }
+    
+    // Calculate relative position within video display area (0-1)
+    const relativeX = (cursorX - offsetX) / displayWidth;
+    const relativeY = (cursorY - offsetY) / displayHeight;
+    
+    // Map to actual video resolution
+    const x = Math.floor(relativeX * remoteVideo.videoWidth);
+    const y = Math.floor(relativeY * remoteVideo.videoHeight);
+    
+    // Validate and send click
+    if (!isNaN(x) && !isNaN(y) && x >= 0 && y >= 0 && 
+        x < remoteVideo.videoWidth && y < remoteVideo.videoHeight) {
+        sendControlInput({
+            type: 'mouse',
+            data: { x, y, click: true, button: 'left' }
+        });
+    }
 });
 
 // Keyboard listeners

@@ -1,0 +1,112 @@
+# 🎬 OmniStream Pro v2 — Quick Start
+
+## 30 Second Setup
+
+```powershell
+python app.py
+```
+
+Open: `http://localhost:58247/`
+
+---
+
+## 3 Steps to Share Your Screen
+
+### **Step 1: Start Broadcasting**
+Click the "📺 Start Broadcasting" button on home page
+
+### **Step 2: Copy the Link**
+Click "📋 Copy Auto-Viewer Link" on the broadcaster page
+
+### **Step 3: Send to Viewer**
+Paste the link to anyone who needs to control your screen
+
+They can immediately:
+- 🖱️ Move your mouse
+- 🖱️ Click on things
+- ⌨️ Type on your keyboard
+
+---
+
+## That's It! 🎉
+
+No separate agent. No manual device IDs. No waiting for approval.
+
+Just share a link and boom - instant remote control.
+
+---
+
+## Features
+
+| Feature | Works? |
+|---------|--------|
+| Screen Sharing | ✅ WebRTC P2P |
+| Mouse Control | ✅ Real-time |
+| Keyboard Control | ✅ Real-time |
+| Latency Monitor | ✅ Shows ms |
+| Fullscreen | ✅ Works |
+| Toggle Controls | ✅ Safety feature |
+| Status Indicator | ✅ Connected/Disconnected |
+| Auto-Approval | ✅ Instant |
+
+---
+
+## URLs to Know
+
+- **Home:** `http://localhost:58247/`
+- **Start Broadcast:** `http://localhost:58247/broadcast/new`
+- **Browse Sessions:** `http://localhost:58247/view_list`
+
+---
+
+## Common Issues
+
+**Mouse not moving?**
+- Check status is "Connected" (green dot)
+- Check "Mouse: ON" button
+- Try refreshing page
+
+**Video not showing?**
+- Click "Allow" when browser asks for screen share permission
+- Try different monitor if multi-monitor setup
+
+**Keyboard not working?**
+- Check "Kbd: ON" button is active
+- Click on video first to focus it
+
+---
+
+## Important Notes
+
+⚠️ **Security:** This is full OS-level control. Only share links with trusted people.
+
+⚠️ **Network:** Works best on same local network. Internet use may have lag.
+
+⚠️ **Permissions:** PyAutoGUI may need administrator rights on Windows.
+
+---
+
+## One Minute Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Server won't start | `pip install -r requirements.txt` |
+| Port in use | Change port in app.py or kill process on 58247 |
+| Video black | Allow screen share permission |
+| Controls frozen | Refresh browser |
+| Link doesn't work | Copy exact URL from broadcaster page |
+| Latency super high | Use Ethernet instead of WiFi |
+
+---
+
+## Questions?
+
+Read the full guides:
+- `REFACTORING_SUMMARY.md` - What's new in v2
+- `UPDATED_GUIDE.md` - Complete documentation
+- `TESTING_GUIDE.md` - Full testing checklist
+
+---
+
+**Ready? Run: `python app.py` 🚀**
+

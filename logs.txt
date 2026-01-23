@@ -1,0 +1,346 @@
+[2026-01-24 00:16:52] [STARTUP] Application started
+[2026-01-24 00:17:01] [STARTUP] Application started
+[2026-01-24 00:17:10] [STARTUP] Application started
+[2026-01-24 00:17:24] [STARTUP] Application started
+[2026-01-24 00:17:31] [STARTUP] Application started
+[2026-01-24 00:17:32] [DEVICE_REGISTERED] BROADCASTER: 02747f3d-e205-4843-91de-f03b9baaa5dd, Room: Unknown
+[2026-01-24 00:17:42] [STARTUP] Application started
+[2026-01-24 00:17:43] [DEVICE_REGISTERED] BROADCASTER: 02747f3d-e205-4843-91de-f03b9baaa5dd, Room: Unknown
+[2026-01-24 00:17:47] [STARTUP] Application started
+[2026-01-24 00:17:48] [DEVICE_REGISTERED] BROADCASTER: 02747f3d-e205-4843-91de-f03b9baaa5dd, Room: Unknown
+[2026-01-24 00:17:52] [STARTUP] Application started
+[2026-01-24 00:17:53] [DEVICE_REGISTERED] BROADCASTER: 02747f3d-e205-4843-91de-f03b9baaa5dd, Room: Unknown
+[2026-01-24 00:18:02] [STARTUP] Application started
+[2026-01-24 00:18:02] [DEVICE_REGISTERED] BROADCASTER: 02747f3d-e205-4843-91de-f03b9baaa5dd, Room: Unknown
+[2026-01-24 00:18:09] [STARTUP] Application started
+[2026-01-24 00:18:10] [DEVICE_REGISTERED] BROADCASTER: 02747f3d-e205-4843-91de-f03b9baaa5dd, Room: Unknown
+[2026-01-24 00:18:17] [STARTUP] Application started
+[2026-01-24 00:18:17] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:18:17] [USER_ACTION] User accessed home page
+[2026-01-24 00:19:01] [DEPRECATED] Old /broadcast/new route accessed. Redirecting to /brodcast_dets
+[2026-01-24 00:19:01] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:19:40] [STARTUP] Application started
+[2026-01-24 00:19:40] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:19:44] [ERROR] Unknown device accessed broadcast view: DEV-SXRMGPK2M
+[2026-01-24 00:19:51] [STARTUP] Application started
+[2026-01-24 00:19:51] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:20:02] [STARTUP] Application started
+[2026-01-24 00:20:02] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:20:16] [DEVICE_REGISTERED] VIEWER: ae93a19d-f591-4392-8580-4befa2ccf53b, Room: Unknown
+[2026-01-24 00:20:16] [VIEWER_JOINING] Viewer: ae93a19d-f591-4392-8580-4befa2ccf53b, Session: 02747f3d-e205-4843-91de-f03b9baaa5dd, Auto-mode: False
+[2026-01-24 00:20:16] [ERROR] Session not found: 02747f3d-e205-4843-91de-f03b9baaa5dd
+[2026-01-24 00:20:26] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 00:20:26] [DEVICE_DISCONNECTED] Device: ae93a19d-f591-4392-8580-4befa2ccf53b
+[2026-01-24 00:20:27] [USER_ACTION] User accessed home page
+[2026-01-24 00:20:28] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 00:21:36] [STARTUP] Application started
+[2026-01-24 00:21:36] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:21:50] [STARTUP] Application started
+[2026-01-24 00:21:50] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:22:07] [STARTUP] Application started
+[2026-01-24 00:22:07] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:22:18] [STARTUP] Application started
+[2026-01-24 00:22:18] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:22:51] [USER_ACTION] User accessed home page
+[2026-01-24 00:22:57] [USER_ACTION] User accessed home page
+[2026-01-24 00:23:18] [DEPRECATED] Old /broadcast/new route accessed. Redirecting to /brodcast_dets
+[2026-01-24 00:23:18] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:23:25] [PASSWORD_GENERATED] Device: DEV-2BC311E8, Room: Jayson
+[2026-01-24 00:23:25] [SESSION_CREATED] Room: Jayson, Device: DEV-2BC311E8, Session: SESSION-A40021D9DF7BA433B0FC4D60
+[2026-01-24 00:23:46] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:23:48] [USER_ACTION] User accessing view screen for session: SESSION-A40021D9DF7BA433B0FC4D60
+[2026-01-24 00:23:48] [DEVICE_REGISTERED] VIEWER: 3209b376-6225-49c8-8c68-23fd72ec761e, Room: Unknown
+[2026-01-24 00:23:48] [VIEWER_JOINING] Viewer: 3209b376-6225-49c8-8c68-23fd72ec761e, Session: SESSION-A40021D9DF7BA433B0FC4D60, Auto-mode: False
+[2026-01-24 00:23:48] [VIEWER_REQUEST] Viewer 3209b376-6225-49c8-8c68-23fd72ec761e requested access to session SESSION-A40021D9DF7BA433B0FC4D60
+[2026-01-24 00:25:52] [USER_ACTION] User accessed home page
+[2026-01-24 00:25:54] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:25:54] [DEVICE_DISCONNECTED] Device: 3209b376-6225-49c8-8c68-23fd72ec761e
+[2026-01-24 00:25:59] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:26:01] [USER_ACTION] User accessed home page
+[2026-01-24 00:26:03] [USER_ACTION] User accessed home page
+[2026-01-24 00:26:05] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:26:06] [USER_ACTION] User accessed home page
+[2026-01-24 00:26:09] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:26:10] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:26:18] [PASSWORD_GENERATED] Device: DEV-97D80630, Room: dfhd
+[2026-01-24 00:26:18] [SESSION_CREATED] Room: dfhd, Device: DEV-97D80630, Session: SESSION-92CBAFE51FDA78EB09FB28DF
+[2026-01-24 00:27:42] [STARTUP] Application started
+[2026-01-24 00:27:42] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:28:26] [USER_ACTION] User accessed home page
+[2026-01-24 00:28:31] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:28:37] [STARTUP] Application started
+[2026-01-24 00:28:37] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:28:37] [PASSWORD_GENERATED] Device: DEV-B3045DD7, Room: dmkdx
+[2026-01-24 00:28:37] [SESSION_CREATED] Room: dmkdx, Device: DEV-B3045DD7, Session: SESSION-7FB9E74FE64510EBF69B53AB
+[2026-01-24 00:28:46] [USER_ACTION] User accessing broadcaster view. Device: DEV-B3045DD7, Room: dmkdx
+[2026-01-24 00:28:46] [DEVICE_REGISTERED] BROADCASTER: DEV-B3045DD7, Room: dmkdx
+[2026-01-24 00:29:00] [USER_ACTION] User accessing view screen for session: SESSION-7FB9E74FE64510EBF69B53AB
+[2026-01-24 00:29:00] [DEVICE_REGISTERED] VIEWER: a7e22ba0-170e-47b6-b9a8-7592c7f3646c, Room: Unknown
+[2026-01-24 00:29:01] [VIEWER_JOINING] Viewer: a7e22ba0-170e-47b6-b9a8-7592c7f3646c, Session: SESSION-7FB9E74FE64510EBF69B53AB, Auto-mode: False
+[2026-01-24 00:29:01] [VIEWER_REQUEST] Viewer a7e22ba0-170e-47b6-b9a8-7592c7f3646c requested access to session SESSION-7FB9E74FE64510EBF69B53AB
+[2026-01-24 00:29:01] [VIEWER_APPROVED] Broadcaster approved viewer: a7e22ba0-170e-47b6-b9a8-7592c7f3646c
+[2026-01-24 00:29:01] [SIGNAL_RELAY] Signal relayed from DEV-B3045DD7 to a7e22ba0-170e-47b6-b9a8-7592c7f3646c
+[2026-01-24 00:29:01] [SIGNAL_RELAY] Signal relayed from DEV-B3045DD7 to a7e22ba0-170e-47b6-b9a8-7592c7f3646c
+[2026-01-24 00:29:01] [SIGNAL_RELAY] Signal relayed from DEV-B3045DD7 to a7e22ba0-170e-47b6-b9a8-7592c7f3646c
+[2026-01-24 00:29:01] [SIGNAL_RELAY] Signal relayed from a7e22ba0-170e-47b6-b9a8-7592c7f3646c to DEV-B3045DD7
+[2026-01-24 00:29:01] [SIGNAL_RELAY] Signal relayed from a7e22ba0-170e-47b6-b9a8-7592c7f3646c to DEV-B3045DD7
+[2026-01-24 00:29:01] [SIGNAL_RELAY] Signal relayed from a7e22ba0-170e-47b6-b9a8-7592c7f3646c to DEV-B3045DD7
+[2026-01-24 00:29:01] [SIGNAL_RELAY] Signal relayed from DEV-B3045DD7 to a7e22ba0-170e-47b6-b9a8-7592c7f3646c
+[2026-01-24 00:29:01] [SIGNAL_RELAY] Signal relayed from a7e22ba0-170e-47b6-b9a8-7592c7f3646c to DEV-B3045DD7
+[2026-01-24 00:29:11] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:29:11] [DEVICE_DISCONNECTED] Device: a7e22ba0-170e-47b6-b9a8-7592c7f3646c
+[2026-01-24 00:33:45] [STARTUP] Application started
+[2026-01-24 00:33:45] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:33:46] [DEVICE_REGISTERED] BROADCASTER: DEV-B3045DD7, Room: Unknown
+[2026-01-24 00:34:23] [USER_ACTION] User accessed home page
+[2026-01-24 00:34:24] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:34:26] [USER_ACTION] User accessed home page
+[2026-01-24 00:34:27] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 00:35:47] [USER_ACTION] User accessed home page
+[2026-01-24 00:36:02] [USER_ACTION] User accessed home page
+[2026-01-24 00:36:02] [DEVICE_DISCONNECTED] Device: DEV-B3045DD7
+[2026-01-24 00:36:03] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:36:09] [PASSWORD_GENERATED] Device: DEV-917D0BDB, Room: Jayson
+[2026-01-24 00:36:09] [SESSION_CREATED] Room: Jayson, Device: DEV-917D0BDB, Session: SESSION-C42F03D592365C87F753DDA3
+[2026-01-24 00:36:16] [USER_ACTION] User accessing broadcaster view. Device: DEV-917D0BDB, Room: Jayson
+[2026-01-24 00:36:16] [DEVICE_REGISTERED] BROADCASTER: DEV-917D0BDB, Room: Jayson
+[2026-01-24 00:36:26] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:36:27] [USER_ACTION] User viewing password entry page for session: SESSION-C42F03D592365C87F753DDA3
+[2026-01-24 00:37:09] [SECURITY] Viewer successfully verified password for session: SESSION-C42F03D592365C87F753DDA3
+[2026-01-24 00:37:10] [USER_ACTION] User accessing view screen for session: SESSION-C42F03D592365C87F753DDA3
+[2026-01-24 00:37:10] [DEVICE_REGISTERED] VIEWER: ae86499c-8690-48ed-8884-3cf46fadf578, Room: Unknown
+[2026-01-24 00:37:10] [VIEWER_JOINING] Viewer: ae86499c-8690-48ed-8884-3cf46fadf578, Session: SESSION-C42F03D592365C87F753DDA3, Auto-mode: False
+[2026-01-24 00:37:10] [VIEWER_REQUEST] Viewer ae86499c-8690-48ed-8884-3cf46fadf578 requested access to session SESSION-C42F03D592365C87F753DDA3
+[2026-01-24 00:37:10] [VIEWER_APPROVED] Broadcaster approved viewer: ae86499c-8690-48ed-8884-3cf46fadf578
+[2026-01-24 00:37:10] [SIGNAL_RELAY] Signal relayed from DEV-917D0BDB to ae86499c-8690-48ed-8884-3cf46fadf578
+[2026-01-24 00:37:10] [SIGNAL_RELAY] Signal relayed from DEV-917D0BDB to ae86499c-8690-48ed-8884-3cf46fadf578
+[2026-01-24 00:37:10] [SIGNAL_RELAY] Signal relayed from DEV-917D0BDB to ae86499c-8690-48ed-8884-3cf46fadf578
+[2026-01-24 00:37:10] [SIGNAL_RELAY] Signal relayed from DEV-917D0BDB to ae86499c-8690-48ed-8884-3cf46fadf578
+[2026-01-24 00:37:10] [SIGNAL_RELAY] Signal relayed from DEV-917D0BDB to ae86499c-8690-48ed-8884-3cf46fadf578
+[2026-01-24 00:37:10] [SIGNAL_RELAY] Signal relayed from ae86499c-8690-48ed-8884-3cf46fadf578 to DEV-917D0BDB
+[2026-01-24 00:37:10] [SIGNAL_RELAY] Signal relayed from ae86499c-8690-48ed-8884-3cf46fadf578 to DEV-917D0BDB
+[2026-01-24 00:37:10] [SIGNAL_RELAY] Signal relayed from ae86499c-8690-48ed-8884-3cf46fadf578 to DEV-917D0BDB
+[2026-01-24 00:37:18] [CONTROL_INPUT] Control from session SESSION-C42F03D592365C87F753DDA3: mouse
+[2026-01-24 00:37:18] [CONTROL_INPUT] Control from session SESSION-C42F03D592365C87F753DDA3: mouse
+[2026-01-24 00:37:19] [CONTROL_INPUT] Control from session SESSION-C42F03D592365C87F753DDA3: mouse
+[2026-01-24 00:37:19] [CONTROL_INPUT] Control from session SESSION-C42F03D592365C87F753DDA3: mouse
+[2026-01-24 00:37:23] [CONTROL_INPUT] Control from session SESSION-C42F03D592365C87F753DDA3: mouse
+[2026-01-24 00:37:23] [CONTROL_INPUT] Control from session SESSION-C42F03D592365C87F753DDA3: mouse
+[2026-01-24 00:37:25] [CONTROL_INPUT] Control from session SESSION-C42F03D592365C87F753DDA3: mouse
+[2026-01-24 00:37:25] [CONTROL_INPUT] Control from session SESSION-C42F03D592365C87F753DDA3: mouse
+[2026-01-24 00:37:27] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:37:27] [DEVICE_DISCONNECTED] Device: ae86499c-8690-48ed-8884-3cf46fadf578
+[2026-01-24 00:37:28] [USER_ACTION] User viewing password entry page for session: SESSION-C42F03D592365C87F753DDA3
+[2026-01-24 00:37:31] [SECURITY] Failed password attempt for session: SESSION-C42F03D592365C87F753DDA3
+[2026-01-24 00:37:33] [SECURITY] Failed password attempt for session: SESSION-C42F03D592365C87F753DDA3
+[2026-01-24 00:37:35] [SECURITY] Failed password attempt for session: SESSION-C42F03D592365C87F753DDA3
+[2026-01-24 00:37:38] [SECURITY] Failed password attempt for session: SESSION-C42F03D592365C87F753DDA3
+[2026-01-24 00:37:39] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:39:55] [STARTUP] Application started
+[2026-01-24 00:39:55] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:39:55] [DEVICE_REGISTERED] BROADCASTER: DEV-917D0BDB, Room: Unknown
+[2026-01-24 00:40:07] [USER_ACTION] User accessed home page
+[2026-01-24 00:40:08] [DEVICE_DISCONNECTED] Device: DEV-917D0BDB
+[2026-01-24 00:41:00] [USER_ACTION] User accessed home page
+[2026-01-24 00:41:06] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 00:41:09] [USER_ACTION] User accessed home page
+[2026-01-24 00:41:39] [USER_ACTION] User accessed home page
+[2026-01-24 00:41:40] [USER_ACTION] User accessed home page
+[2026-01-24 00:41:41] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:42:15] [PASSWORD_GENERATED] Device: DEV-E0D37DE2, Room: Jayson-Workstation
+[2026-01-24 00:42:15] [SESSION_CREATED] Room: Jayson-Workstation, Device: DEV-E0D37DE2, Session: SESSION-88F6E65F47E23F989CEFFD00
+[2026-01-24 00:42:22] [USER_ACTION] User accessing broadcaster view. Device: DEV-E0D37DE2, Room: Jayson-Workstation
+[2026-01-24 00:42:22] [DEVICE_REGISTERED] BROADCASTER: DEV-E0D37DE2, Room: Jayson-Workstation
+[2026-01-24 00:42:33] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:42:42] [USER_ACTION] User viewing password entry page for session: SESSION-88F6E65F47E23F989CEFFD00
+[2026-01-24 00:42:45] [SECURITY] Failed password attempt for session: SESSION-88F6E65F47E23F989CEFFD00
+[2026-01-24 00:43:07] [SECURITY] Viewer successfully verified password for session: SESSION-88F6E65F47E23F989CEFFD00
+[2026-01-24 00:43:07] [USER_ACTION] User accessing view screen for session: SESSION-88F6E65F47E23F989CEFFD00
+[2026-01-24 00:43:07] [DEVICE_REGISTERED] VIEWER: 1aa29dc3-90b0-401c-8fc3-467ee8fb419e, Room: Unknown
+[2026-01-24 00:43:07] [VIEWER_JOINING] Viewer: 1aa29dc3-90b0-401c-8fc3-467ee8fb419e, Session: SESSION-88F6E65F47E23F989CEFFD00, Auto-mode: False
+[2026-01-24 00:43:07] [VIEWER_REQUEST] Viewer 1aa29dc3-90b0-401c-8fc3-467ee8fb419e requested access to session SESSION-88F6E65F47E23F989CEFFD00
+[2026-01-24 00:43:07] [VIEWER_APPROVED] Broadcaster approved viewer: 1aa29dc3-90b0-401c-8fc3-467ee8fb419e
+[2026-01-24 00:43:07] [SIGNAL_RELAY] Signal relayed from DEV-E0D37DE2 to 1aa29dc3-90b0-401c-8fc3-467ee8fb419e
+[2026-01-24 00:43:07] [SIGNAL_RELAY] Signal relayed from DEV-E0D37DE2 to 1aa29dc3-90b0-401c-8fc3-467ee8fb419e
+[2026-01-24 00:43:07] [SIGNAL_RELAY] Signal relayed from DEV-E0D37DE2 to 1aa29dc3-90b0-401c-8fc3-467ee8fb419e
+[2026-01-24 00:43:07] [SIGNAL_RELAY] Signal relayed from DEV-E0D37DE2 to 1aa29dc3-90b0-401c-8fc3-467ee8fb419e
+[2026-01-24 00:43:07] [SIGNAL_RELAY] Signal relayed from DEV-E0D37DE2 to 1aa29dc3-90b0-401c-8fc3-467ee8fb419e
+[2026-01-24 00:43:07] [SIGNAL_RELAY] Signal relayed from 1aa29dc3-90b0-401c-8fc3-467ee8fb419e to DEV-E0D37DE2
+[2026-01-24 00:43:07] [SIGNAL_RELAY] Signal relayed from 1aa29dc3-90b0-401c-8fc3-467ee8fb419e to DEV-E0D37DE2
+[2026-01-24 00:43:07] [SIGNAL_RELAY] Signal relayed from 1aa29dc3-90b0-401c-8fc3-467ee8fb419e to DEV-E0D37DE2
+[2026-01-24 00:43:13] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:13] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:14] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:14] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:20] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:20] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:22] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:22] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:27] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:27] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:28] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:28] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:29] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:30] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:31] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:43:31] [CONTROL_INPUT] Control from session SESSION-88F6E65F47E23F989CEFFD00: mouse
+[2026-01-24 00:44:00] [USER_ACTION] User accessing broadcaster view. Device: DEV-E0D37DE2, Room: Jayson-Workstation
+[2026-01-24 00:44:00] [DEVICE_REGISTERED] BROADCASTER: DEV-E0D37DE2, Room: Jayson-Workstation
+[2026-01-24 00:44:07] [DEVICE_DISCONNECTED] Device: DEV-E0D37DE2
+[2026-01-24 00:44:07] [SESSION_ENDED] Session: SESSION-88F6E65F47E23F989CEFFD00
+[2026-01-24 00:44:31] [USER_ACTION] User accessed home page
+[2026-01-24 00:44:33] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 00:44:48] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 00:44:48] [DEVICE_DISCONNECTED] Device: 1aa29dc3-90b0-401c-8fc3-467ee8fb419e
+[2026-01-24 00:45:09] [USER_ACTION] User accessed home page
+[2026-01-24 00:45:11] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:45:16] [PASSWORD_GENERATED] Device: DEV-ABB30052, Room: Jayson-Workstation
+[2026-01-24 00:45:16] [SESSION_CREATED] Room: Jayson-Workstation, Device: DEV-ABB30052, Session: SESSION-FAF92A34F1BD24F82ED44E03
+[2026-01-24 00:45:19] [USER_ACTION] User accessing broadcaster view. Device: DEV-ABB30052, Room: Jayson-Workstation
+[2026-01-24 00:45:19] [DEVICE_REGISTERED] BROADCASTER: DEV-ABB30052, Room: Jayson-Workstation
+[2026-01-24 00:45:34] [USER_ACTION] User viewing password entry page for session: SESSION-FAF92A34F1BD24F82ED44E03
+[2026-01-24 00:45:51] [SECURITY] Viewer successfully verified password for session: SESSION-FAF92A34F1BD24F82ED44E03
+[2026-01-24 00:45:51] [USER_ACTION] User accessing view screen for session: SESSION-FAF92A34F1BD24F82ED44E03
+[2026-01-24 00:45:51] [DEVICE_REGISTERED] VIEWER: 73587167-2fea-42e3-8d9a-cb9bed322bb1, Room: Unknown
+[2026-01-24 00:45:51] [VIEWER_JOINING] Viewer: 73587167-2fea-42e3-8d9a-cb9bed322bb1, Session: SESSION-FAF92A34F1BD24F82ED44E03, Auto-mode: False
+[2026-01-24 00:45:51] [VIEWER_REQUEST] Viewer 73587167-2fea-42e3-8d9a-cb9bed322bb1 requested access to session SESSION-FAF92A34F1BD24F82ED44E03
+[2026-01-24 00:45:51] [VIEWER_APPROVED] Broadcaster approved viewer: 73587167-2fea-42e3-8d9a-cb9bed322bb1
+[2026-01-24 00:45:52] [SIGNAL_RELAY] Signal relayed from DEV-ABB30052 to 73587167-2fea-42e3-8d9a-cb9bed322bb1
+[2026-01-24 00:45:52] [SIGNAL_RELAY] Signal relayed from DEV-ABB30052 to 73587167-2fea-42e3-8d9a-cb9bed322bb1
+[2026-01-24 00:45:52] [SIGNAL_RELAY] Signal relayed from DEV-ABB30052 to 73587167-2fea-42e3-8d9a-cb9bed322bb1
+[2026-01-24 00:45:52] [SIGNAL_RELAY] Signal relayed from DEV-ABB30052 to 73587167-2fea-42e3-8d9a-cb9bed322bb1
+[2026-01-24 00:45:52] [SIGNAL_RELAY] Signal relayed from DEV-ABB30052 to 73587167-2fea-42e3-8d9a-cb9bed322bb1
+[2026-01-24 00:45:52] [SIGNAL_RELAY] Signal relayed from 73587167-2fea-42e3-8d9a-cb9bed322bb1 to DEV-ABB30052
+[2026-01-24 00:45:52] [SIGNAL_RELAY] Signal relayed from 73587167-2fea-42e3-8d9a-cb9bed322bb1 to DEV-ABB30052
+[2026-01-24 00:45:52] [SIGNAL_RELAY] Signal relayed from 73587167-2fea-42e3-8d9a-cb9bed322bb1 to DEV-ABB30052
+[2026-01-24 00:45:52] [SIGNAL_RELAY] Signal relayed from 73587167-2fea-42e3-8d9a-cb9bed322bb1 to DEV-ABB30052
+[2026-01-24 00:45:52] [SIGNAL_RELAY] Signal relayed from DEV-ABB30052 to 73587167-2fea-42e3-8d9a-cb9bed322bb1
+[2026-01-24 00:46:12] [USER_ACTION] User viewing password entry page for session: SESSION-FAF92A34F1BD24F82ED44E03
+[2026-01-24 00:46:16] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:46:33] [USER_ACTION] User accessed home page
+[2026-01-24 00:48:16] [STARTUP] Application started
+[2026-01-24 00:48:16] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:48:17] [STARTUP] Application started
+[2026-01-24 00:48:17] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:48:17] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 00:48:18] [DEVICE_REGISTERED] BROADCASTER: DEV-ABB30052, Room: Unknown
+[2026-01-24 00:48:18] [USER_ACTION] User accessed home page
+[2026-01-24 00:48:25] [USER_ACTION] User accessed home page
+[2026-01-24 00:48:25] [DEVICE_DISCONNECTED] Device: DEV-ABB30052
+[2026-01-24 00:48:26] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:48:32] [PASSWORD_GENERATED] Device: DEV-CFDD0AB9, Room: Jayson-Workstation
+[2026-01-24 00:48:32] [SESSION_CREATED] Room: Jayson-Workstation, Device: DEV-CFDD0AB9, Session: SESSION-AD7F3D8368F8B27F7120A340
+[2026-01-24 00:48:36] [USER_ACTION] User accessing broadcaster view. Device: DEV-CFDD0AB9, Room: Jayson-Workstation
+[2026-01-24 00:48:36] [DEVICE_REGISTERED] BROADCASTER: DEV-CFDD0AB9, Room: Jayson-Workstation
+[2026-01-24 00:48:49] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:48:51] [USER_ACTION] User viewing password entry page for session: SESSION-AD7F3D8368F8B27F7120A340
+[2026-01-24 00:49:10] [SECURITY] Viewer successfully verified password for session: SESSION-AD7F3D8368F8B27F7120A340
+[2026-01-24 00:49:10] [USER_ACTION] User accessing view screen for session: SESSION-AD7F3D8368F8B27F7120A340
+[2026-01-24 00:49:10] [DEVICE_REGISTERED] VIEWER: 3136b693-ffde-46d6-8a82-474bfe867218, Room: Unknown
+[2026-01-24 00:49:10] [VIEWER_JOINING] Viewer: 3136b693-ffde-46d6-8a82-474bfe867218, Session: SESSION-AD7F3D8368F8B27F7120A340, Auto-mode: False
+[2026-01-24 00:49:10] [VIEWER_REQUEST] Viewer 3136b693-ffde-46d6-8a82-474bfe867218 requested access to session SESSION-AD7F3D8368F8B27F7120A340
+[2026-01-24 00:49:10] [VIEWER_APPROVED] Broadcaster approved viewer: 3136b693-ffde-46d6-8a82-474bfe867218
+[2026-01-24 00:49:10] [SIGNAL_RELAY] Signal relayed from DEV-CFDD0AB9 to 3136b693-ffde-46d6-8a82-474bfe867218
+[2026-01-24 00:49:10] [SIGNAL_RELAY] Signal relayed from DEV-CFDD0AB9 to 3136b693-ffde-46d6-8a82-474bfe867218
+[2026-01-24 00:49:10] [SIGNAL_RELAY] Signal relayed from DEV-CFDD0AB9 to 3136b693-ffde-46d6-8a82-474bfe867218
+[2026-01-24 00:49:10] [SIGNAL_RELAY] Signal relayed from DEV-CFDD0AB9 to 3136b693-ffde-46d6-8a82-474bfe867218
+[2026-01-24 00:49:10] [SIGNAL_RELAY] Signal relayed from DEV-CFDD0AB9 to 3136b693-ffde-46d6-8a82-474bfe867218
+[2026-01-24 00:49:10] [SIGNAL_RELAY] Signal relayed from 3136b693-ffde-46d6-8a82-474bfe867218 to DEV-CFDD0AB9
+[2026-01-24 00:49:10] [SIGNAL_RELAY] Signal relayed from DEV-CFDD0AB9 to 3136b693-ffde-46d6-8a82-474bfe867218
+[2026-01-24 00:49:10] [SIGNAL_RELAY] Signal relayed from DEV-CFDD0AB9 to 3136b693-ffde-46d6-8a82-474bfe867218
+[2026-01-24 00:49:10] [SIGNAL_RELAY] Signal relayed from 3136b693-ffde-46d6-8a82-474bfe867218 to DEV-CFDD0AB9
+[2026-01-24 00:49:10] [SIGNAL_RELAY] Signal relayed from 3136b693-ffde-46d6-8a82-474bfe867218 to DEV-CFDD0AB9
+[2026-01-24 00:49:10] [SIGNAL_RELAY] Signal relayed from 3136b693-ffde-46d6-8a82-474bfe867218 to DEV-CFDD0AB9
+[2026-01-24 00:52:40] [STARTUP] Application started
+[2026-01-24 00:52:40] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:52:42] [STARTUP] Application started
+[2026-01-24 00:52:42] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 00:52:46] [DEVICE_REGISTERED] BROADCASTER: DEV-CFDD0AB9, Room: Unknown
+[2026-01-24 00:52:49] [USER_ACTION] User accessed home page
+[2026-01-24 00:52:49] [DEVICE_DISCONNECTED] Device: DEV-CFDD0AB9
+[2026-01-24 00:52:50] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:52:53] [PASSWORD_GENERATED] Device: DEV-490E1A49, Room: dfgd
+[2026-01-24 00:52:53] [SESSION_CREATED] Room: dfgd, Device: DEV-490E1A49, Session: SESSION-652DD8D0256CF4DAF30D3CDB
+[2026-01-24 00:52:55] [USER_ACTION] User accessing broadcaster view. Device: DEV-490E1A49, Room: dfgd
+[2026-01-24 00:52:55] [DEVICE_REGISTERED] BROADCASTER: DEV-490E1A49, Room: dfgd
+[2026-01-24 00:53:10] [ERROR] Session not found: SESSION-AD7F3D8368F8B27F7120A340
+[2026-01-24 00:53:10] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:53:15] [USER_ACTION] User accessed home page
+[2026-01-24 00:55:15] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:59:01] [USER_ACTION] User accessed home page
+[2026-01-24 00:59:29] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:59:31] [USER_ACTION] User accessed home page
+[2026-01-24 00:59:39] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 00:59:44] [USER_ACTION] User accessed home page
+[2026-01-24 00:59:45] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 00:59:52] [USER_ACTION] User accessed home page
+[2026-01-24 01:00:29] [USER_ACTION] User accessed home page
+[2026-01-24 01:00:29] [DEVICE_DISCONNECTED] Device: DEV-490E1A49
+[2026-01-24 01:00:29] [SESSION_ENDED] Session: SESSION-652DD8D0256CF4DAF30D3CDB
+[2026-01-24 01:00:29] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 01:00:33] [USER_ACTION] User accessed home page
+[2026-01-24 01:00:34] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 01:01:22] [PASSWORD_GENERATED] Device: DEV-1CA0A69D, Room: Concentrix-Workstation
+[2026-01-24 01:01:22] [SESSION_CREATED] Room: Concentrix-Workstation, Device: DEV-1CA0A69D, Session: SESSION-E78C2A77D89F114030B0C5BC
+[2026-01-24 01:01:28] [USER_ACTION] User accessing broadcaster view. Device: DEV-1CA0A69D, Room: Concentrix-Workstation
+[2026-01-24 01:01:28] [DEVICE_REGISTERED] BROADCASTER: DEV-1CA0A69D, Room: Concentrix-Workstation
+[2026-01-24 01:01:50] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 01:02:02] [USER_ACTION] User viewing password entry page for session: SESSION-E78C2A77D89F114030B0C5BC
+[2026-01-24 01:03:27] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 01:06:37] [USER_ACTION] User viewing password entry page for session: SESSION-E78C2A77D89F114030B0C5BC
+[2026-01-24 01:06:57] [SECURITY] Viewer successfully verified password for session: SESSION-E78C2A77D89F114030B0C5BC
+[2026-01-24 01:06:57] [USER_ACTION] User accessing view screen for session: SESSION-E78C2A77D89F114030B0C5BC
+[2026-01-24 01:06:57] [DEVICE_REGISTERED] VIEWER: e0deb0c1-0622-4c07-ae90-aed91a674692, Room: Unknown
+[2026-01-24 01:06:57] [VIEWER_JOINING] Viewer: e0deb0c1-0622-4c07-ae90-aed91a674692, Session: SESSION-E78C2A77D89F114030B0C5BC, Auto-mode: False
+[2026-01-24 01:06:57] [VIEWER_REQUEST] Viewer e0deb0c1-0622-4c07-ae90-aed91a674692 requested access to session SESSION-E78C2A77D89F114030B0C5BC
+[2026-01-24 01:06:57] [VIEWER_APPROVED] Broadcaster approved viewer: e0deb0c1-0622-4c07-ae90-aed91a674692
+[2026-01-24 01:06:57] [SIGNAL_RELAY] Signal relayed from DEV-1CA0A69D to e0deb0c1-0622-4c07-ae90-aed91a674692
+[2026-01-24 01:06:57] [SIGNAL_RELAY] Signal relayed from DEV-1CA0A69D to e0deb0c1-0622-4c07-ae90-aed91a674692
+[2026-01-24 01:06:57] [SIGNAL_RELAY] Signal relayed from DEV-1CA0A69D to e0deb0c1-0622-4c07-ae90-aed91a674692
+[2026-01-24 01:06:57] [SIGNAL_RELAY] Signal relayed from DEV-1CA0A69D to e0deb0c1-0622-4c07-ae90-aed91a674692
+[2026-01-24 01:06:57] [SIGNAL_RELAY] Signal relayed from DEV-1CA0A69D to e0deb0c1-0622-4c07-ae90-aed91a674692
+[2026-01-24 01:06:57] [SIGNAL_RELAY] Signal relayed from e0deb0c1-0622-4c07-ae90-aed91a674692 to DEV-1CA0A69D
+[2026-01-24 01:06:57] [SIGNAL_RELAY] Signal relayed from e0deb0c1-0622-4c07-ae90-aed91a674692 to DEV-1CA0A69D
+[2026-01-24 01:06:57] [SIGNAL_RELAY] Signal relayed from e0deb0c1-0622-4c07-ae90-aed91a674692 to DEV-1CA0A69D
+[2026-01-24 01:06:57] [SIGNAL_RELAY] Signal relayed from DEV-1CA0A69D to e0deb0c1-0622-4c07-ae90-aed91a674692
+[2026-01-24 01:06:57] [SIGNAL_RELAY] Signal relayed from e0deb0c1-0622-4c07-ae90-aed91a674692 to DEV-1CA0A69D
+[2026-01-24 01:07:08] [CONTROL_INPUT] Control from session SESSION-E78C2A77D89F114030B0C5BC: mouse
+[2026-01-24 01:07:08] [CONTROL_INPUT] Control from session SESSION-E78C2A77D89F114030B0C5BC: mouse
+[2026-01-24 01:07:14] [CONTROL_INPUT] Control from session SESSION-E78C2A77D89F114030B0C5BC: mouse
+[2026-01-24 01:07:15] [CONTROL_INPUT] Control from session SESSION-E78C2A77D89F114030B0C5BC: mouse
+[2026-01-24 01:07:41] [CONTROL_INPUT] Control from session SESSION-E78C2A77D89F114030B0C5BC: mouse
+[2026-01-24 01:07:41] [CONTROL_INPUT] Control from session SESSION-E78C2A77D89F114030B0C5BC: mouse
+[2026-01-24 01:07:47] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 01:07:47] [DEVICE_DISCONNECTED] Device: e0deb0c1-0622-4c07-ae90-aed91a674692
+[2026-01-24 01:08:18] [USER_ACTION] User accessed home page
+[2026-01-24 01:13:21] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 01:13:23] [USER_ACTION] User accessed home page
+[2026-01-24 01:13:39] [STARTUP] Application started
+[2026-01-24 01:13:39] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 01:13:39] [DEVICE_REGISTERED] BROADCASTER: DEV-1CA0A69D, Room: Unknown
+[2026-01-24 01:15:15] [USER_ACTION] User accessed home page
+[2026-01-24 01:15:15] [DEVICE_DISCONNECTED] Device: DEV-1CA0A69D
+[2026-01-24 01:15:16] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 01:15:21] [PASSWORD_GENERATED] Device: DEV-B9C8BD01, Room: Concentrix-Workstation
+[2026-01-24 01:15:21] [SESSION_CREATED] Room: Concentrix-Workstation, Device: DEV-B9C8BD01, Session: SESSION-7AF282293F56EE71FB5DBC5F
+[2026-01-24 01:15:30] [USER_ACTION] User accessing broadcaster view. Device: DEV-B9C8BD01, Room: Concentrix-Workstation
+[2026-01-24 01:15:30] [DEVICE_REGISTERED] BROADCASTER: DEV-B9C8BD01, Room: Concentrix-Workstation
+[2026-01-24 01:15:45] [USER_ACTION] User accessed home page
+[2026-01-24 01:15:45] [DEVICE_DISCONNECTED] Device: DEV-B9C8BD01
+[2026-01-24 01:15:45] [SESSION_ENDED] Session: SESSION-7AF282293F56EE71FB5DBC5F
+[2026-01-24 01:15:47] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 01:15:48] [USER_ACTION] User accessed home page
+[2026-01-24 01:15:50] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 01:15:53] [USER_ACTION] User accessed home page
+[2026-01-24 01:16:40] [STARTUP] Application started
+[2026-01-24 01:16:40] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 01:16:41] [STARTUP] Application started
+[2026-01-24 01:16:41] [STARTUP] Starting OmniStream Pro server...
+[2026-01-24 01:16:44] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 01:16:48] [PASSWORD_GENERATED] Device: DEV-FC2FCCDE, Room: Concentrix-Workstation
+[2026-01-24 01:16:48] [SESSION_CREATED] Room: Concentrix-Workstation, Device: DEV-FC2FCCDE, Session: SESSION-F8FB8FF1DACEFD233F90CC31
+[2026-01-24 01:16:54] [USER_ACTION] User accessing broadcaster view. Device: DEV-FC2FCCDE, Room: Concentrix-Workstation
+[2026-01-24 01:16:54] [DEVICE_REGISTERED] BROADCASTER: DEV-FC2FCCDE, Room: Concentrix-Workstation
+[2026-01-24 01:17:06] [USER_ACTION] User accessed home page
+[2026-01-24 01:17:06] [DEVICE_DISCONNECTED] Device: DEV-FC2FCCDE
+[2026-01-24 01:17:06] [SESSION_ENDED] Session: SESSION-F8FB8FF1DACEFD233F90CC31

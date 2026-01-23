@@ -77,9 +77,23 @@ function createPeer(viewerId) {
 // ---------------------------
 socket.on('connect', () => {
     console.log("[INFO] Connected to signaling server");
+    
+    // Get broadcast data from sessionStorage
+    const broadcastData = sessionStorage.getItem('broadcastData');
+    let broadcastInfo = {};
+    
+    if (broadcastData) {
+        broadcastInfo = JSON.parse(broadcastData);
+        sessionStorage.removeItem('broadcastData'); // Clean up
+    }
+    
     socket.emit('register_device', { 
-        role: 'broadcaster', 
-        device_id: window.deviceId 
+        role: 'broadcaster',
+        device_id: window.deviceId || broadcastInfo.deviceId,
+        session_id: broadcastInfo.sessionId,
+        password: broadcastInfo.password,
+        room_name: broadcastInfo.roomName,
+        broadcaster_name: broadcastInfo.broadcasterName
     });
 });
 

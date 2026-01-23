@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JVPS Desktop Remote — Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+    <style>
+        .status-bar {
+            background: #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.connected {
+            background: #27ae60;
+        }
+        
+        .status-dot.connecting {
+            background: #f39c12;
+        }
+        
+        .status-dot.disconnected {
+            background: #e74c3c;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .rotated { transform: rotate(90deg); max-height: 80vh; }
+        .video-container { position: relative; overflow: hidden; }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-desktop"></i> JVPS Desktop Remote — Live Connection</h1>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot connecting" id="statusDot"></div>
+                <span id="statusText"><i class="fas fa-spinner fa-spin"></i> Connecting...</span>
+            </div>
+            <div>
+                <small id="latency"><i class="fas fa-tachometer-alt"></i> Latency: --ms</small>
+            </div>
+        </div>
+
+        <!-- Video Container -->
+        <div class="video-container" id="vContainer">
+            <video id="remoteVideo" autoplay playsinline style="width: 100%; background: #000;"></video>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="controls">
+            <div class="btn-group" style="grid-column: 1 / -1;">
+                <button id="toggleMouse" class="btn btn-primary"><i class="fas fa-mouse"></i> Mouse: ON</button>
+                <button id="toggleKbd" class="btn btn-primary"><i class="fas fa-keyboard"></i> Keyboard: ON</button>
+                <button id="btnFull" class="btn btn-secondary"><i class="fas fa-expand"></i> Fullscreen</button>
+                <button id="btnRotate" class="btn btn-secondary"><i class="fas fa-redo"></i> Rotate</button>
+                <a href="{{ url_for('home') }}" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Exit</a>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #3498db;">
+            <h3 style="margin-top: 0;"><i class="fas fa-gamepad"></i> Control Guide:</h3>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li><strong><i class="fas fa-mouse"></i> Mouse:</strong> Move your mouse over the display to control the remote desktop</li>
+                <li><strong><i class="fas fa-click"></i> Click:</strong> Click on the display to perform mouse actions on the remote device</li>
+                <li><strong><i class="fas fa-keyboard"></i> Keyboard:</strong> Type to send keyboard input to the remote machine</li>
+                <li><strong><i class="fas fa-toggle-on"></i> Control:</strong> Use buttons above to enable/disable input methods</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        window.SESSION_ID = "{{ session_id }}";
+        window.AUTO_APPROVE = true;
+        window.PASSWORD = "{{ password }}";
+    </script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/webrtc_viewer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auto_viewer.js') }}"></script>
+</body>
+</html>
