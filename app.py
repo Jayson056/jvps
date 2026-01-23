@@ -82,64 +82,8 @@ NOTE: Keep this password secure. Share the links with authorized viewers only.
     
     log_event('PASSWORD_GENERATED', f'Device: {device_id}, Room: {room_name}')
     return password_file
-
-def execute_control(action):
-    """
-    Executes incoming control commands from the remote viewer.
-    action: dict with keys:
-        - type: 'mouse' or 'keyboard'
-        - data: dict containing coordinates or key names
-    
-    Note: Desktop control only works on systems with a display (DISPLAY env var set).
-    On headless servers (Render, etc.), this will be skipped with a log message.
-    """
-    try:
-        # Lazy import pyautogui - only import when actually controlling the desktop
-        # This prevents DISPLAY environment errors on headless servers
-        try:
-            import pyautogui
-            pyautogui.FAILSAFE = True
-        except (KeyError, ImportError) as import_err:
-            # KeyError: DISPLAY environment variable not set (headless server)
-            # ImportError: pyautogui or its dependencies failed to load
-            is_headless = 'DISPLAY' in str(import_err) or isinstance(import_err, KeyError)
-            if is_headless:
-                log_event('CONTROL_SKIPPED', f'Desktop control skipped - running on headless server (no DISPLAY)')
-                return  # Silently skip on headless servers
-            else:
-                raise  # Re-raise other import errors
-        
-        if action['type'] == 'mouse':
-            data = action['data']
-            x, y = data.get('x'), data.get('y')
-            
-            if x is not None and y is not None:
-                # Handle Movement
-                if data.get('move'):
-                    pyautogui.moveTo(x, y, duration=MOUSE_SPEED)
-                
-                # Handle Clicks
-                if data.get('click'):
-                    button = data.get('button', 'left')
-                    pyautogui.click(x, y, button=button)
-
-        elif action['type'] == 'keyboard':
-            data = action['data']
-            key = data.get('key')
-            action_type = data.get('action', 'press')
-
-            # Standardize key names
-            key = key.lower() if len(key) > 1 else key
-
-            if action_type == 'press':
-                pyautogui.press(key)
-            elif action_type == 'down':
-                pyautogui.keyDown(key)
-            elif action_type == 'up':
-                pyautogui.keyUp(key)
-
-    except Exception as e:
-        log_event('CONTROL_ERROR', f'Failed to execute control: {str(e)}')
+# Desktop control is now executed by the broadcaster agent (on local machine)
+# The Render server only relays control commands, does NOT execute them
 
 # ---------------------------
 # Routes
@@ -418,30 +362,53 @@ def handle_signal(data):
         emit('signal', data, to=target_sid)
 
 # ---------------------------
-# Viewer control (Mouse/Keyboard)
+# Viewer control (Mouse/Keyboard) - RELAY TO BROADCASTER AGENT
 # ---------------------------
 @socketio.on('control_input')
 def control_input(data):
+    """
+    Relay control input from viewer to broadcaster agent.
+    The server does NOT execute controls - only relays them.
+    
+    Broadcaster Agent (running on local machine) executes the controls.
+    """
     session_id = data.get('session_id')
-    broadcaster_id = sessions.get(session_id, {}).get('broadcaster')
+    control_action = data.get('action', {})
     
+    # Find the broadcaster for this session
+    session = sessions.get(session_id)
+    if not session:
+        log_event('CONTROL_ERROR', f'Session not found: {session_id}')
+        emit('control_error', {'error': 'Session not found'})
+        return
+    
+    broadcaster_id = session.get('broadcaster')
     if not broadcaster_id:
-        log_event('ERROR', f'No broadcaster found for session {session_id}')
+        log_event('CONTROL_ERROR', f'No broadcaster for session {session_id}')
+        emit('control_error', {'error': 'No broadcaster for this session'})
         return
     
+    # Check if broadcaster is connected
     if broadcaster_id not in devices:
-        log_event('ERROR', f'Broadcaster {broadcaster_id} not registered in devices')
+        log_event('CONTROL_ERROR', f'Broadcaster {broadcaster_id} not connected')
+        emit('control_error', {'error': 'Broadcaster is offline'})
         return
     
-    target_sid = devices[broadcaster_id]['sid']
-    if not target_sid:
-        log_event('ERROR', f'Broadcaster {broadcaster_id} has no SID assigned')
+    broadcaster_sid = devices[broadcaster_id].get('sid')
+    if not broadcaster_sid:
+        log_event('CONTROL_ERROR', f'Broadcaster {broadcaster_id} SID not found')
+        emit('control_error', {'error': 'Broadcaster connection lost'})
         return
     
-    log_event('CONTROL_INPUT', f'Control from session {session_id}: {data.get("action", {}).get("type", "unknown")}')
+    control_type = control_action.get('type', 'unknown')
+    log_event('CONTROL_RELAY', f'Relaying {control_type} control from viewer to broadcaster {broadcaster_id}')
     
-    # Execute locally via PyAutoGUI (no need to wait for agent)
-    execute_control(data['action'])
+    # Relay control to broadcaster agent
+    # The broadcaster agent will execute the actual control
+    emit('control_input', {
+        'type': control_type,
+        'data': control_action.get('data', {})
+    }, to=broadcaster_sid)
 
 # ---------------------------
 # Disconnect Handling
