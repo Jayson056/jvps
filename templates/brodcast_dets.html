@@ -474,9 +474,9 @@ Instructions:
                 if (data.qr_code && data.qr_code.length > 0) {
                     const qrImg = document.getElementById('qrCodeDisplay');
                     const qrSection = document.getElementById('qrCodeSection');
-                    qrImg.src = data.qr_code;
+                    qrImg.src = data.qr_code;  // URL like /qr/device-id.png
                     qrSection.style.display = 'block';
-                    console.log('QR Code loaded successfully');
+                    console.log('QR Code URL loaded:', data.qr_code);
                 } else {
                     console.warn('QR Code data not available');
                 }
@@ -523,8 +523,16 @@ Instructions:
                 alert('Error: Broadcaster URL not found. Please create a session again.');
                 return;
             }
+            
+            // Clean up QR code image before redirecting
+            fetch(`/cleanup_qr/${data.deviceId}`, { method: 'POST' })
+                .then(res => res.json())
+                .catch(err => console.warn('Could not cleanup QR code:', err));
+            
             // Redirect to broadcast view with device ID
-            window.location.href = data.broadcasterUrl;
+            setTimeout(() => {
+                window.location.href = data.broadcasterUrl;
+            }, 200);
         }
 
         // Form validation

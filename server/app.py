@@ -9,6 +9,7 @@ from pathlib import Path
 import qrcode
 from io import BytesIO
 import base64
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -55,6 +56,33 @@ def generate_qrcode_base64(password):
     img_str = base64.b64encode(buffered.getvalue()).decode()
     
     return f"data:image/png;base64,{img_str}"
+
+def generate_qrcode_file(password, device_id):
+    """Generate QR code and save to tempImQr folder, return file path"""
+    import os
+    
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(password)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Create tempImQr directory if it doesn't exist
+    temp_dir = Path(__file__).parent.parent / 'tempImQr'
+    os.makedirs(temp_dir, exist_ok=True)
+    
+    # Save QR code with device_id as filename
+    qr_file_path = temp_dir / f"{device_id}.png"
+    img.save(qr_file_path)
+    
+    log_event("QR_CODE_SAVED", f"QR code saved: {qr_file_path}")
+    
+    return f"/qr/{device_id}.png"
 
 def save_password_to_file(device_id, room_name, broadcaster_name, session_id, password):
     """Save broadcast credentials to password.txt"""
@@ -124,8 +152,8 @@ def api_create_session():
     # Log the creation
     log_event("SESSION_CREATED", f"Room: {room_name} | Broadcaster: {broadcaster_name} | Device: {device_id}")
     
-    # Generate QR code for password
-    qr_code_data_uri = generate_qrcode_base64(password)
+    # Generate QR code and save to file
+    qr_code_url = generate_qrcode_file(password, device_id)
     
     # Generate shareable links (assuming domain is localhost:5000, adjust as needed)
     base_url = request.host_url.rstrip('/')
@@ -137,7 +165,7 @@ def api_create_session():
         'device_id': device_id,
         'session_id': session_id,
         'password': password,
-        'qr_code': qr_code_data_uri,
+        'qr_code': qr_code_url,
         'room_name': room_name,
         'broadcaster_name': broadcaster_name,
         'auto_viewer_link': auto_viewer_link,
@@ -150,6 +178,35 @@ def view_list():
     # Show available broadcasters
     broadcasters = [d_id for d_id, d in devices.items() if d['role'] == 'broadcaster']
     return render_template('view_list.html', broadcasters=broadcasters)
+
+@app.route('/qr/<device_id>.png')
+def serve_qr_code(device_id):
+    """Serve QR code image from tempImQr folder"""
+    from flask import send_file
+    import os
+    
+    qr_file = Path(__file__).parent.parent / 'tempImQr' / f"{device_id}.png"
+    
+    if not qr_file.exists():
+        return "QR code not found", 404
+    
+    return send_file(qr_file, mimetype='image/png', as_attachment=False)
+
+@app.route('/cleanup_qr/<device_id>', methods=['POST'])
+def cleanup_qr(device_id):
+    """Delete QR code image after broadcast starts"""
+    import os
+    
+    qr_file = Path(__file__).parent.parent / 'tempImQr' / f"{device_id}.png"
+    
+    try:
+        if qr_file.exists():
+            os.remove(qr_file)
+            log_event("QR_CODE_DELETED", f"QR code deleted: {device_id}")
+    except Exception as e:
+        log_event("QR_CODE_DELETE_ERROR", f"Error deleting QR code {device_id}: {str(e)}")
+    
+    return jsonify({'success': True})
 
 @app.route('/view/<session_id>')
 def view_screen(session_id):
