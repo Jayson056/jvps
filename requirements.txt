@@ -32,8 +32,6 @@ mss==10.0.0
 # Audio/Video Processing
 Pillow==11.1.0
 numpy==2.4.1
-PyAudio==0.2.14
-sounddevice==0.5.3
 pylibsrtp==1.0.0
 
 # HTTP and Requests
