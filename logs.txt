@@ -614,3 +614,283 @@
 [2026-01-24 03:16:41] [STARTUP] Starting JVPS Desktop Remote server...
 [2026-01-24 03:22:38] [STARTUP] Application started
 [2026-01-24 03:22:38] [STARTUP] Starting JVPS Desktop Remote server...
+[2026-01-24 03:40:46] [STARTUP] Application started
+[2026-01-24 03:40:46] [STARTUP] Starting JVPS Desktop Remote server...
+[2026-01-24 03:40:47] [STARTUP] Application started
+[2026-01-24 03:40:47] [STARTUP] Starting JVPS Desktop Remote server...
+[2026-01-24 03:41:12] [USER_ACTION] User accessed home page
+[2026-01-24 03:41:14] [USER_ACTION] User accessed home page
+[2026-01-24 03:41:31] [USER_ACTION] User accessed home page
+[2026-01-24 03:41:33] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 03:41:38] [PASSWORD_GENERATED] Device: DEV-4D940CC9, Room: Concentrix-Workstation
+[2026-01-24 03:41:38] [SESSION_CREATED] Room: Concentrix-Workstation, Device: DEV-4D940CC9, Session: SESSION-967BBFE0FD406C9E6A6C7566
+[2026-01-24 03:41:42] [USER_ACTION] User accessing broadcaster view. Device: DEV-4D940CC9, Room: Concentrix-Workstation
+[2026-01-24 03:41:42] [DEVICE_REGISTERED] BROADCASTER: DEV-4D940CC9, Room: Concentrix-Workstation
+[2026-01-24 03:41:51] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 03:41:52] [USER_ACTION] User viewing password entry page for session: SESSION-967BBFE0FD406C9E6A6C7566
+[2026-01-24 03:42:19] [SECURITY] Viewer successfully verified password for session: SESSION-967BBFE0FD406C9E6A6C7566
+[2026-01-24 03:42:19] [USER_ACTION] User accessing view screen for session: SESSION-967BBFE0FD406C9E6A6C7566
+[2026-01-24 03:42:20] [DEVICE_REGISTERED] VIEWER: 964c72a3-a115-483f-98de-df70d6ba32cc, Room: Unknown
+[2026-01-24 03:42:20] [VIEWER_JOINING] Viewer: 964c72a3-a115-483f-98de-df70d6ba32cc, Session: SESSION-967BBFE0FD406C9E6A6C7566, Auto-mode: False
+[2026-01-24 03:42:20] [VIEWER_REQUEST] Viewer 964c72a3-a115-483f-98de-df70d6ba32cc requested access to session SESSION-967BBFE0FD406C9E6A6C7566
+[2026-01-24 03:42:20] [VIEWER_APPROVED] Broadcaster approved viewer: 964c72a3-a115-483f-98de-df70d6ba32cc
+[2026-01-24 03:42:20] [SIGNAL_RELAY] Signal relayed from DEV-4D940CC9 to 964c72a3-a115-483f-98de-df70d6ba32cc
+[2026-01-24 03:42:20] [SIGNAL_RELAY] Signal relayed from DEV-4D940CC9 to 964c72a3-a115-483f-98de-df70d6ba32cc
+[2026-01-24 03:42:20] [SIGNAL_RELAY] Signal relayed from DEV-4D940CC9 to 964c72a3-a115-483f-98de-df70d6ba32cc
+[2026-01-24 03:42:20] [SIGNAL_RELAY] Signal relayed from DEV-4D940CC9 to 964c72a3-a115-483f-98de-df70d6ba32cc
+[2026-01-24 03:42:20] [SIGNAL_RELAY] Signal relayed from DEV-4D940CC9 to 964c72a3-a115-483f-98de-df70d6ba32cc
+[2026-01-24 03:42:20] [SIGNAL_RELAY] Signal relayed from 964c72a3-a115-483f-98de-df70d6ba32cc to DEV-4D940CC9
+[2026-01-24 03:42:20] [SIGNAL_RELAY] Signal relayed from 964c72a3-a115-483f-98de-df70d6ba32cc to DEV-4D940CC9
+[2026-01-24 03:42:20] [SIGNAL_RELAY] Signal relayed from 964c72a3-a115-483f-98de-df70d6ba32cc to DEV-4D940CC9
+[2026-01-24 03:42:20] [SIGNAL_RELAY] Signal relayed from 964c72a3-a115-483f-98de-df70d6ba32cc to DEV-4D940CC9
+[2026-01-24 03:42:20] [SIGNAL_RELAY] Signal relayed from DEV-4D940CC9 to 964c72a3-a115-483f-98de-df70d6ba32cc
+[2026-01-24 03:42:23] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:23] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:25] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:25] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:25] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:25] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:28] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:29] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:30] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:30] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:30] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:30] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:30] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:30] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:30] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:30] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:30] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:30] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:30] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:31] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:31] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:31] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:31] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:31] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:31] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:31] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:31] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:31] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:31] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:31] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:32] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:32] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:32] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:32] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:32] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:32] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:33] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:34] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:34] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:34] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:34] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:34] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:34] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:34] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:42:34] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-4D940CC9
+[2026-01-24 03:44:03] [USER_ACTION] User accessed home page
+[2026-01-24 03:44:03] [DEVICE_DISCONNECTED] Device: DEV-4D940CC9
+[2026-01-24 03:44:03] [SESSION_ENDED] Session: SESSION-967BBFE0FD406C9E6A6C7566
+[2026-01-24 03:44:06] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 03:44:06] [DEVICE_DISCONNECTED] Device: 964c72a3-a115-483f-98de-df70d6ba32cc
+[2026-01-24 03:44:07] [USER_ACTION] User accessed home page
+[2026-01-24 03:44:09] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 03:44:13] [PASSWORD_GENERATED] Device: DEV-B5187365, Room: Concentrix-Workstation
+[2026-01-24 03:44:13] [SESSION_CREATED] Room: Concentrix-Workstation, Device: DEV-B5187365, Session: SESSION-C30B9205E00A2EEC1D0F7E1F
+[2026-01-24 03:44:15] [USER_ACTION] User accessing broadcaster view. Device: DEV-B5187365, Room: Concentrix-Workstation
+[2026-01-24 03:44:15] [DEVICE_REGISTERED] BROADCASTER: DEV-B5187365, Room: Concentrix-Workstation
+[2026-01-24 03:44:22] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 03:44:24] [USER_ACTION] User viewing password entry page for session: SESSION-C30B9205E00A2EEC1D0F7E1F
+[2026-01-24 03:44:40] [SECURITY] Viewer successfully verified password for session: SESSION-C30B9205E00A2EEC1D0F7E1F
+[2026-01-24 03:44:40] [USER_ACTION] User accessing view screen for session: SESSION-C30B9205E00A2EEC1D0F7E1F
+[2026-01-24 03:44:40] [DEVICE_REGISTERED] VIEWER: 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3, Room: Unknown
+[2026-01-24 03:44:40] [VIEWER_JOINING] Viewer: 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3, Session: SESSION-C30B9205E00A2EEC1D0F7E1F, Auto-mode: False
+[2026-01-24 03:44:40] [VIEWER_REQUEST] Viewer 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3 requested access to session SESSION-C30B9205E00A2EEC1D0F7E1F
+[2026-01-24 03:44:40] [VIEWER_APPROVED] Broadcaster approved viewer: 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3
+[2026-01-24 03:44:40] [SIGNAL_RELAY] Signal relayed from DEV-B5187365 to 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3
+[2026-01-24 03:44:40] [SIGNAL_RELAY] Signal relayed from DEV-B5187365 to 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3
+[2026-01-24 03:44:40] [SIGNAL_RELAY] Signal relayed from DEV-B5187365 to 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3
+[2026-01-24 03:44:40] [SIGNAL_RELAY] Signal relayed from DEV-B5187365 to 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3
+[2026-01-24 03:44:40] [SIGNAL_RELAY] Signal relayed from DEV-B5187365 to 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3
+[2026-01-24 03:44:40] [SIGNAL_RELAY] Signal relayed from 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3 to DEV-B5187365
+[2026-01-24 03:44:40] [SIGNAL_RELAY] Signal relayed from 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3 to DEV-B5187365
+[2026-01-24 03:44:40] [SIGNAL_RELAY] Signal relayed from 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3 to DEV-B5187365
+[2026-01-24 03:44:40] [SIGNAL_RELAY] Signal relayed from DEV-B5187365 to 0bf5a2a5-ab54-4ad8-a7e6-3f8c0c2356b3
+[2026-01-24 03:44:42] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:42] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:43] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:43] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:43] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:43] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:44] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:44] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:44] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:44] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:44] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:44] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:44] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:44] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:45] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:44:45] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-B5187365
+[2026-01-24 03:45:13] [STARTUP] Application started
+[2026-01-24 03:45:13] [STARTUP] Starting JVPS Desktop Remote server...
+[2026-01-24 03:45:14] [STARTUP] Application started
+[2026-01-24 03:45:14] [STARTUP] Starting JVPS Desktop Remote server...
+[2026-01-24 03:45:14] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 03:45:18] [USER_ACTION] User accessed home page
+[2026-01-24 03:45:18] [DEVICE_REGISTERED] BROADCASTER: DEV-B5187365, Room: Unknown
+[2026-01-24 03:45:18] [DEVICE_DISCONNECTED] Device: DEV-B5187365
+[2026-01-24 03:45:29] [STARTUP] Application started
+[2026-01-24 03:45:29] [STARTUP] Starting JVPS Desktop Remote server...
+[2026-01-24 03:45:31] [STARTUP] Application started
+[2026-01-24 03:45:31] [STARTUP] Starting JVPS Desktop Remote server...
+[2026-01-24 03:45:32] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 03:45:36] [PASSWORD_GENERATED] Device: DEV-49401BE7, Room: Concentrix-Workstation
+[2026-01-24 03:45:36] [SESSION_CREATED] Room: Concentrix-Workstation, Device: DEV-49401BE7, Session: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:45:38] [USER_ACTION] User accessing broadcaster view. Device: DEV-49401BE7, Room: Concentrix-Workstation
+[2026-01-24 03:45:38] [DEVICE_REGISTERED] BROADCASTER: DEV-49401BE7, Room: Concentrix-Workstation
+[2026-01-24 03:45:47] [USER_ACTION] User viewing password entry page for session: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:45:59] [SECURITY] Viewer successfully verified password for session: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:45:59] [USER_ACTION] User accessing view screen for session: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:45:59] [DEVICE_REGISTERED] VIEWER: 63ee50bd-8162-42ed-a0e5-5c6c98202090, Room: Unknown
+[2026-01-24 03:45:59] [VIEWER_JOINING] Viewer: 63ee50bd-8162-42ed-a0e5-5c6c98202090, Session: SESSION-7AE0A2A0E77C12B16758BCAA, Auto-mode: False
+[2026-01-24 03:45:59] [VIEWER_REQUEST] Viewer 63ee50bd-8162-42ed-a0e5-5c6c98202090 requested access to session SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:45:59] [VIEWER_APPROVED] Broadcaster approved viewer: 63ee50bd-8162-42ed-a0e5-5c6c98202090
+[2026-01-24 03:45:59] [SIGNAL_RELAY] Signal relayed from DEV-49401BE7 to 63ee50bd-8162-42ed-a0e5-5c6c98202090
+[2026-01-24 03:45:59] [SIGNAL_RELAY] Signal relayed from DEV-49401BE7 to 63ee50bd-8162-42ed-a0e5-5c6c98202090
+[2026-01-24 03:45:59] [SIGNAL_RELAY] Signal relayed from DEV-49401BE7 to 63ee50bd-8162-42ed-a0e5-5c6c98202090
+[2026-01-24 03:45:59] [SIGNAL_RELAY] Signal relayed from DEV-49401BE7 to 63ee50bd-8162-42ed-a0e5-5c6c98202090
+[2026-01-24 03:45:59] [SIGNAL_RELAY] Signal relayed from DEV-49401BE7 to 63ee50bd-8162-42ed-a0e5-5c6c98202090
+[2026-01-24 03:45:59] [SIGNAL_RELAY] Signal relayed from 63ee50bd-8162-42ed-a0e5-5c6c98202090 to DEV-49401BE7
+[2026-01-24 03:45:59] [SIGNAL_RELAY] Signal relayed from 63ee50bd-8162-42ed-a0e5-5c6c98202090 to DEV-49401BE7
+[2026-01-24 03:45:59] [SIGNAL_RELAY] Signal relayed from 63ee50bd-8162-42ed-a0e5-5c6c98202090 to DEV-49401BE7
+[2026-01-24 03:45:59] [SIGNAL_RELAY] Signal relayed from DEV-49401BE7 to 63ee50bd-8162-42ed-a0e5-5c6c98202090
+[2026-01-24 03:45:59] [SIGNAL_RELAY] Signal relayed from 63ee50bd-8162-42ed-a0e5-5c6c98202090 to DEV-49401BE7
+[2026-01-24 03:46:01] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-49401BE7
+[2026-01-24 03:46:01] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-49401BE7
+[2026-01-24 03:46:01] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-49401BE7
+[2026-01-24 03:46:01] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-49401BE7
+[2026-01-24 03:46:02] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-49401BE7
+[2026-01-24 03:46:02] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-49401BE7
+[2026-01-24 03:46:02] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-49401BE7
+[2026-01-24 03:46:02] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-49401BE7
+[2026-01-24 03:46:02] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-49401BE7
+[2026-01-24 03:46:02] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-49401BE7
+[2026-01-24 03:48:50] [STARTUP] Application started
+[2026-01-24 03:48:50] [STARTUP] Starting JVPS Desktop Remote server...
+[2026-01-24 03:48:50] [DEVICE_REGISTERED] VIEWER: b41937e1-050a-408c-b066-8c6ca4e84518, Room: Unknown
+[2026-01-24 03:48:50] [VIEWER_JOINING] Viewer: b41937e1-050a-408c-b066-8c6ca4e84518, Session: SESSION-7AE0A2A0E77C12B16758BCAA, Auto-mode: False
+[2026-01-24 03:48:50] [ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:50] [DEVICE_REGISTERED] BROADCASTER: DEV-49401BE7, Room: Unknown
+[2026-01-24 03:48:57] [STARTUP] Application started
+[2026-01-24 03:48:57] [STARTUP] Starting JVPS Desktop Remote server...
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [DEVICE_REGISTERED] VIEWER: db3115b8-9f1b-4178-8fb5-a79b0c40f5ba, Room: Unknown
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [VIEWER_JOINING] Viewer: db3115b8-9f1b-4178-8fb5-a79b0c40f5ba, Session: SESSION-7AE0A2A0E77C12B16758BCAA, Auto-mode: False
+[2026-01-24 03:48:57] [ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [DEVICE_REGISTERED] BROADCASTER: DEV-49401BE7, Room: Unknown
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:48:57] [CONTROL_ERROR] Session not found: SESSION-7AE0A2A0E77C12B16758BCAA
+[2026-01-24 03:49:04] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 03:49:04] [DEVICE_DISCONNECTED] Device: db3115b8-9f1b-4178-8fb5-a79b0c40f5ba
+[2026-01-24 03:49:05] [USER_ACTION] User accessed home page
+[2026-01-24 03:49:12] [STARTUP] OmniStream Pro server starting on 0.0.0.0:58247
+[2026-01-24 03:49:14] [STARTUP] OmniStream Pro server starting on 0.0.0.0:58247
+[2026-01-24 03:49:14] [STARTUP] Broadcaster agent started in background
+[2026-01-24 03:49:16] [STARTUP] Broadcaster agent started in background
+[2026-01-24 03:49:18] [USER_ACTION] User accessed home page
+[2026-01-24 03:49:18] [DEVICE_DISCONNECTED] Device: DEV-49401BE7
+[2026-01-24 03:49:19] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 03:49:22] [PASSWORD_GENERATED] Device: DEV-7B9D1E8C, Room: Concentrix-Workstation
+[2026-01-24 03:49:22] [SESSION_CREATED] Room: Concentrix-Workstation, Device: DEV-7B9D1E8C, Session: SESSION-387A1A6E8C3CC4D6A5655C35
+[2026-01-24 03:49:24] [USER_ACTION] User accessing broadcaster view. Device: DEV-7B9D1E8C, Room: Concentrix-Workstation
+[2026-01-24 03:49:24] [DEVICE_REGISTERED] BROADCASTER: DEV-7B9D1E8C, Room: Concentrix-Workstation
+[2026-01-24 03:49:47] [USER_ACTION] User accessed view list. Active sessions: 1
+[2026-01-24 03:49:48] [USER_ACTION] User viewing password entry page for session: SESSION-387A1A6E8C3CC4D6A5655C35
+[2026-01-24 03:50:02] [SECURITY] Viewer successfully verified password for session: SESSION-387A1A6E8C3CC4D6A5655C35
+[2026-01-24 03:50:03] [USER_ACTION] User accessing view screen for session: SESSION-387A1A6E8C3CC4D6A5655C35
+[2026-01-24 03:50:03] [DEVICE_REGISTERED] VIEWER: be46b2f1-63aa-4eb4-a698-1a6998b71d16, Room: Unknown
+[2026-01-24 03:50:03] [VIEWER_JOINING] Viewer: be46b2f1-63aa-4eb4-a698-1a6998b71d16, Session: SESSION-387A1A6E8C3CC4D6A5655C35, Auto-mode: False
+[2026-01-24 03:50:03] [VIEWER_REQUEST] Viewer be46b2f1-63aa-4eb4-a698-1a6998b71d16 requested access to session SESSION-387A1A6E8C3CC4D6A5655C35
+[2026-01-24 03:50:03] [VIEWER_APPROVED] Broadcaster approved viewer: be46b2f1-63aa-4eb4-a698-1a6998b71d16
+[2026-01-24 03:50:03] [SIGNAL_RELAY] Signal relayed from DEV-7B9D1E8C to be46b2f1-63aa-4eb4-a698-1a6998b71d16
+[2026-01-24 03:50:03] [SIGNAL_RELAY] Signal relayed from DEV-7B9D1E8C to be46b2f1-63aa-4eb4-a698-1a6998b71d16
+[2026-01-24 03:50:03] [SIGNAL_RELAY] Signal relayed from DEV-7B9D1E8C to be46b2f1-63aa-4eb4-a698-1a6998b71d16
+[2026-01-24 03:50:03] [SIGNAL_RELAY] Signal relayed from DEV-7B9D1E8C to be46b2f1-63aa-4eb4-a698-1a6998b71d16
+[2026-01-24 03:50:03] [SIGNAL_RELAY] Signal relayed from DEV-7B9D1E8C to be46b2f1-63aa-4eb4-a698-1a6998b71d16
+[2026-01-24 03:50:03] [SIGNAL_RELAY] Signal relayed from be46b2f1-63aa-4eb4-a698-1a6998b71d16 to DEV-7B9D1E8C
+[2026-01-24 03:50:03] [SIGNAL_RELAY] Signal relayed from be46b2f1-63aa-4eb4-a698-1a6998b71d16 to DEV-7B9D1E8C
+[2026-01-24 03:50:03] [SIGNAL_RELAY] Signal relayed from be46b2f1-63aa-4eb4-a698-1a6998b71d16 to DEV-7B9D1E8C
+[2026-01-24 03:50:03] [SIGNAL_RELAY] Signal relayed from DEV-7B9D1E8C to be46b2f1-63aa-4eb4-a698-1a6998b71d16
+[2026-01-24 03:50:03] [SIGNAL_RELAY] Signal relayed from be46b2f1-63aa-4eb4-a698-1a6998b71d16 to DEV-7B9D1E8C
+[2026-01-24 03:50:06] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:06] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:07] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:07] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:07] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:07] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:07] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:07] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:08] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:08] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:08] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:08] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:08] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:08] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:08] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:08] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:08] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:09] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:09] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:09] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:09] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:09] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:09] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:09] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:09] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:10] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:10] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C
+[2026-01-24 03:50:10] [CONTROL_RELAY] Relaying mouse control from viewer to broadcaster DEV-7B9D1E8C

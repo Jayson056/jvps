@@ -10,6 +10,11 @@ import secrets
 import hashlib
 from datetime import datetime
 from pathlib import Path
+import os
+import sys
+import subprocess
+import threading
+import time
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -381,8 +386,42 @@ def disconnect():
             del devices[device_id]
 
 # ---------------------------
+# Broadcaster Agent Auto-Start
+# ---------------------------
+def is_running_on_render():
+    """Check if running on Render cloud"""
+    return os.environ.get('RENDER') == 'true' or 'onrender.com' in os.environ.get('RENDER_EXTERNAL_URL', '')
+
+def start_broadcaster_agent():
+    """Start broadcaster agent in background (local only)"""
+    if is_running_on_render():
+        return  # Don't start agent on Render
+    
+    agent_path = Path(__file__).parent.parent / 'agent' / 'broadcaster_agent.py'
+    if not agent_path.exists():
+        return
+    
+    def run_agent():
+        try:
+            time.sleep(2)  # Wait for server to start
+            subprocess.Popen([sys.executable, str(agent_path)], 
+                           stdout=subprocess.PIPE, 
+                           stderr=subprocess.PIPE)
+            log_event("STARTUP", "Broadcaster agent started in background")
+        except Exception as e:
+            log_event("STARTUP", f"Failed to start agent: {e}")
+    
+    agent_thread = threading.Thread(target=run_agent, daemon=True)
+    agent_thread.start()
+
+# ---------------------------
 # Main
 # ---------------------------
 if __name__ == '__main__':
     log_event("STARTUP", "OmniStream Pro server starting on 0.0.0.0:58247")
+    
+    # Auto-start broadcaster agent locally
+    if not is_running_on_render():
+        start_broadcaster_agent()
+    
     socketio.run(app, host='0.0.0.0', port=58247, debug=True)
