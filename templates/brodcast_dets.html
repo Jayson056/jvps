@@ -301,9 +301,11 @@
                 </div>
 
                 <!-- QR Code Section -->
-                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; text-align: center;">
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; text-align: center;" id="qrCodeSection" style="display: none;">
                     <div style="color: #3498db; font-weight: bold; margin-bottom: 10px; font-size: 0.9rem;">📱 QR Code (Scan for Password):</div>
-                    <img id="qrCodeDisplay" src="" alt="QR Code for password" style="max-width: 200px; height: auto; border: 2px solid #3498db; padding: 5px; background: white; border-radius: 5px;">
+                    <div style="background: white; padding: 10px; border-radius: 5px; display: inline-block;">
+                        <img id="qrCodeDisplay" src="" alt="QR Code for password" style="max-width: 200px; height: auto; min-width: 150px; min-height: 150px; border: 2px solid #3498db; display: block;">
+                    </div>
                 </div>
 
                 <div class="password-row">
@@ -469,8 +471,14 @@ Instructions:
                 document.getElementById('deviceIdDisplay').textContent = data.device_id;
                 
                 // Display QR code
-                if (data.qr_code) {
-                    document.getElementById('qrCodeDisplay').src = data.qr_code;
+                if (data.qr_code && data.qr_code.length > 0) {
+                    const qrImg = document.getElementById('qrCodeDisplay');
+                    const qrSection = document.getElementById('qrCodeSection');
+                    qrImg.src = data.qr_code;
+                    qrSection.style.display = 'block';
+                    console.log('QR Code loaded successfully');
+                } else {
+                    console.warn('QR Code data not available');
                 }
 
                 document.getElementById('autoViewerLink').textContent = data.auto_viewer_link;
