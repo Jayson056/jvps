@@ -16,6 +16,11 @@ Open terminal on your local computer:
 
 ```bash
 cd path/to/BROADCAST
+
+# Install agent dependencies (first time only)
+pip install -r requirements-agent.txt
+
+# Run the agent
 python agent/broadcaster_agent.py
 ```
 
