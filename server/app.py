@@ -6,6 +6,9 @@ import secrets
 import hashlib
 from datetime import datetime
 from pathlib import Path
+import qrcode
+from io import BytesIO
+import base64
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -32,6 +35,26 @@ def generate_password():
 def hash_password(password):
     """Hash password using SHA256"""
     return hashlib.sha256(password.encode()).hexdigest()
+
+def generate_qrcode_base64(password):
+    """Generate QR code for password and return as base64 data URI"""
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(password)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Convert to base64
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode()
+    
+    return f"data:image/png;base64,{img_str}"
 
 def save_password_to_file(device_id, room_name, broadcaster_name, session_id, password):
     """Save broadcast credentials to password.txt"""
@@ -101,6 +124,9 @@ def api_create_session():
     # Log the creation
     log_event("SESSION_CREATED", f"Room: {room_name} | Broadcaster: {broadcaster_name} | Device: {device_id}")
     
+    # Generate QR code for password
+    qr_code_data_uri = generate_qrcode_base64(password)
+    
     # Generate shareable links (assuming domain is localhost:5000, adjust as needed)
     base_url = request.host_url.rstrip('/')
     auto_viewer_link = f"{base_url}/auto_viewer/{session_id}?pwd={password}"
@@ -111,6 +137,7 @@ def api_create_session():
         'device_id': device_id,
         'session_id': session_id,
         'password': password,
+        'qr_code': qr_code_data_uri,
         'room_name': room_name,
         'broadcaster_name': broadcaster_name,
         'auto_viewer_link': auto_viewer_link,
