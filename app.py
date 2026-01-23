@@ -55,8 +55,9 @@ broadcast_sessions = {}  # device_id -> {'session_id': session_id, 'password': p
 
 log_event('STARTUP', 'Application started')
 
-# PyAutoGUI Configuration
-pyautogui.FAILSAFE = True
+# PyAutoGUI Configuration (only if available)
+if PYAUTOGUI_AVAILABLE:
+    pyautogui.FAILSAFE = True
 MOUSE_SPEED = 0.1  # seconds for smooth movement
 
 # ---------------------------
@@ -159,6 +160,10 @@ def execute_control(action):
         - type: 'mouse' or 'keyboard'
         - data: dict containing coordinates or key names
     """
+    if not PYAUTOGUI_AVAILABLE:
+        print("[WARNING] pyautogui not available - remote control disabled")
+        return
+    
     try:
         if action['type'] == 'mouse':
             data = action['data']
