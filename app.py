@@ -3,7 +3,6 @@ from flask import Flask, render_template, request, jsonify, session as flask_ses
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import uuid
 import threading
-import pyautogui
 import time
 import secrets
 import hashlib
@@ -37,8 +36,7 @@ broadcast_sessions = {}  # device_id -> {'session_id': session_id, 'password': p
 
 log_event('STARTUP', 'Application started')
 
-# PyAutoGUI Configuration
-pyautogui.FAILSAFE = True
+# PyAutoGUI Configuration (lazy loaded in execute_control)
 MOUSE_SPEED = 0.1  # seconds for smooth movement
 
 # ---------------------------
@@ -93,6 +91,11 @@ def execute_control(action):
         - data: dict containing coordinates or key names
     """
     try:
+        # Lazy import pyautogui - only import when actually controlling the desktop
+        # This prevents DISPLAY environment errors on headless servers
+        import pyautogui
+        pyautogui.FAILSAFE = True
+        
         if action['type'] == 'mouse':
             data = action['data']
             x, y = data.get('x'), data.get('y')
