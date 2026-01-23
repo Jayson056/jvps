@@ -1,0 +1,26 @@
+# JVPS Broadcaster Agent Requirements
+# This is for the LOCAL broadcaster agent running on the user's machine
+# Contains all GUI control and screen capture packages
+
+# Socket Communication
+python-socketio==5.16.0
+python-engineio==4.13.0
+
+# Desktop Control and GUI
+PyAutoGUI==0.9.54
+PyGetWindow==0.0.9
+PyScreeze==1.0.1
+PyMsgBox==2.0.1
+MouseInfo==0.1.3
+PyRect==0.2.0
+
+# Screen Capture
+mss==10.0.0
+
+# Image Processing
+Pillow==11.1.0
+numpy==2.4.1
+
+# Utilities
+requests==2.32.5
+certifi==2025.10.5

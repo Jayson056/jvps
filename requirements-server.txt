@@ -1,8 +1,6 @@
 # JVPS Server Requirements - Render Deployment
 # This is the MINIMAL set needed for the Render server
 # GUI and desktop control packages are NOT included (they run on broadcaster machine)
-# 
-# For broadcaster agent packages, see: requirements-agent.txt
 
 # Core Framework
 Flask==3.1.0
@@ -38,9 +36,3 @@ Jinja2==3.1.6
 MarkupSafe==3.0.3
 packaging==25.0
 blinker==1.9.0
-
-
-# Optional Dependencies for Development
-# Uncomment as needed:
-# playwright==1.55.0  # For browser automation testing
-# pytest==7.0.0       # For unit testing
