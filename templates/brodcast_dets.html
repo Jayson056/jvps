@@ -474,24 +474,13 @@ Instructions:
                     const qrImg = document.getElementById('qrCodeDisplay');
                     const qrSection = document.getElementById('qrCodeSection');
                     
-                    // Set the data URI
-                    qrImg.src = data.qr_code;
-                    
-                    // Ensure image loads
-                    qrImg.onload = function() {
-                        console.log('✓ QR Code image loaded successfully');
-                        qrSection.style.display = 'block';
-                    };
-                    
-                    qrImg.onerror = function() {
-                        console.error('✗ Failed to load QR code image');
-                        qrSection.style.display = 'block';  // Show anyway
-                    };
-                    
-                    // Set immediately in case of cache
+                    // Set the image source URL
+                    qrImg.src = data.qr_code;  // e.g., /qr1.png
                     qrSection.style.display = 'block';
+                    
+                    console.log('✓ QR Code URL set to:', data.qr_code);
                 } else {
-                    console.error('✗ QR Code data not received from server');
+                    console.error('✗ QR Code URL not received from server');
                 }
 
                 document.getElementById('autoViewerLink').textContent = data.auto_viewer_link;
@@ -537,8 +526,19 @@ Instructions:
                 return;
             }
             
-            // Redirect to broadcast view with device ID
-            window.location.href = data.broadcasterUrl;
+            // Delete QR code image before redirecting
+            fetch('/delete_qr', { method: 'POST' })
+                .then(res => res.json())
+                .then(result => {
+                    console.log('QR code deleted:', result);
+                    // Redirect to broadcast view
+                    window.location.href = data.broadcasterUrl;
+                })
+                .catch(err => {
+                    console.warn('Could not delete QR code:', err);
+                    // Still redirect even if delete fails
+                    window.location.href = data.broadcasterUrl;
+                });
         }
 
         // Form validation
