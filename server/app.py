@@ -306,10 +306,18 @@ def control_input(data):
     }
     """
     session_id = data['session_id']
-    broadcaster_id = sessions.get(session_id, {}).get('broadcaster')
-    if broadcaster_id:
-        emit('control_input', data['action'], room=devices[broadcaster_id]['sid'])
-        log_event("CONTROL_INPUT", f"Session: {session_id} | Action: {data['action'].get('type', 'unknown')}")
+    session_data = sessions.get(session_id, {})
+    
+    # Try broadcaster agent first, then fallback to broadcaster
+    broadcaster_agent_id = session_data.get('broadcaster_agent_id')
+    broadcaster_id = session_data.get('broadcaster')
+    target_id = broadcaster_agent_id or broadcaster_id
+    
+    if target_id and target_id in devices:
+        target_sid = devices[target_id]['sid']
+        emit('control_input', data['action'], room=target_sid)
+        role = "AGENT" if broadcaster_agent_id else "BROADCASTER"
+        log_event(f"CONTROL_RELAY[{role}]", f"Session: {session_id} | Action: {data['action'].get('type', 'unknown')}")
 
 # ---------------------------
 # Broadcaster Agent Registration
