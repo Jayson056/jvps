@@ -89,12 +89,25 @@ def execute_control(action):
     action: dict with keys:
         - type: 'mouse' or 'keyboard'
         - data: dict containing coordinates or key names
+    
+    Note: Desktop control only works on systems with a display (DISPLAY env var set).
+    On headless servers (Render, etc.), this will be skipped with a log message.
     """
     try:
         # Lazy import pyautogui - only import when actually controlling the desktop
         # This prevents DISPLAY environment errors on headless servers
-        import pyautogui
-        pyautogui.FAILSAFE = True
+        try:
+            import pyautogui
+            pyautogui.FAILSAFE = True
+        except (KeyError, ImportError) as import_err:
+            # KeyError: DISPLAY environment variable not set (headless server)
+            # ImportError: pyautogui or its dependencies failed to load
+            is_headless = 'DISPLAY' in str(import_err) or isinstance(import_err, KeyError)
+            if is_headless:
+                log_event('CONTROL_SKIPPED', f'Desktop control skipped - running on headless server (no DISPLAY)')
+                return  # Silently skip on headless servers
+            else:
+                raise  # Re-raise other import errors
         
         if action['type'] == 'mouse':
             data = action['data']
@@ -126,7 +139,7 @@ def execute_control(action):
                 pyautogui.keyUp(key)
 
     except Exception as e:
-        print(f"[ERROR] Failed to execute control: {e}")
+        log_event('CONTROL_ERROR', f'Failed to execute control: {str(e)}')
 
 # ---------------------------
 # Routes
