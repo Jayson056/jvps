@@ -605,3 +605,10 @@
 [2026-01-24 02:34:09] [STARTUP] Starting JVPS Desktop Remote server...
 [2026-01-24 02:46:34] [STARTUP] Application started
 [2026-01-24 02:46:34] [STARTUP] Starting JVPS Desktop Remote server...
+[2026-01-24 02:59:32] [USER_ACTION] User accessed home page
+[2026-01-24 02:59:33] [USER_ACTION] User accessed view list. Active sessions: 0
+[2026-01-24 02:59:35] [USER_ACTION] User accessed home page
+[2026-01-24 03:13:17] [USER_ACTION] User accessed home page
+[2026-01-24 03:13:19] [USER_ACTION] User accessed broadcast setup page
+[2026-01-24 03:16:41] [STARTUP] Application started
+[2026-01-24 03:16:41] [STARTUP] Starting JVPS Desktop Remote server...

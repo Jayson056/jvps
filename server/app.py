@@ -1,4 +1,8 @@
 # server/app.py
+# Must be first to avoid monkey-patching conflicts
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, render_template, request, jsonify, session as flask_session, redirect, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import uuid
