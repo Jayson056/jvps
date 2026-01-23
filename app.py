@@ -465,9 +465,7 @@ def start_broadcaster_agent():
     def run_agent():
         try:
             time.sleep(2)  # Wait for server to start
-            subprocess.Popen([sys.executable, str(agent_path)], 
-                           stdout=subprocess.PIPE, 
-                           stderr=subprocess.PIPE)
+            subprocess.Popen([sys.executable, str(agent_path)])
             log_event("STARTUP", "Broadcaster agent started in background")
         except Exception as e:
             log_event("STARTUP", f"Failed to start agent: {e}")
