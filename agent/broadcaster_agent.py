@@ -18,10 +18,11 @@ import numpy as np
 import io
 from PIL import Image
 import socketio
-import asyncio
 import threading
 import json
 import os
+import uuid
+import time
 from datetime import datetime
 
 # Initialize Socket.IO client
@@ -222,7 +223,7 @@ def send_heartbeat():
         try:
             if sio.connected:
                 sio.emit('heartbeat', {'timestamp': datetime.now().isoformat()})
-            asyncio.sleep(30)
+            time.sleep(30)
         except Exception as e:
             print(f"[ERROR] Heartbeat failed: {e}")
 
@@ -232,21 +233,29 @@ def send_heartbeat():
 def main():
     """Main broadcaster agent loop"""
     print("\n" + "=" * 70)
-    print("JVPS Broadcaster Agent - Configuration")
+    print("JVPS Broadcaster Agent - Desktop Control")
     print("=" * 70)
+    print(f"Server: {RENDER_SERVER}")
+    print("=" * 70 + "\n")
     
     # Get session details
-    session_id = input("Enter Session ID: ").strip()
-    password = input("Enter Password: ").strip()
-    room_name = input("Enter Room Name (optional): ").strip() or "Shared Screen"
+    session_id = input("📱 Enter Session ID (from Render): ").strip()
+    password = input("🔐 Enter Password (from Render): ").strip()
+    room_name = input("🏠 Enter Room Name (optional): ").strip() or "Shared Screen"
     
     if not session_id or not password:
-        print("[ERROR] Session ID and password are required")
+        print("[ERROR] Session ID and password are required!")
         return
+    
+    print("\n[INFO] Connecting to Render relay server...")
     
     # Connect to Render relay server
     if not connect_to_server(session_id, password, room_name):
         print("[ERROR] Failed to connect to relay server")
+        print("[INFO] Make sure:")
+        print("  1. Render server is running at: " + RENDER_SERVER)
+        print("  2. Session ID is correct")
+        print("  3. Password is correct")
         return
     
     # Start heartbeat thread
@@ -255,16 +264,20 @@ def main():
     
     # Keep the agent running
     try:
-        print("\n[INFO] Agent is running. Press Ctrl+C to stop.")
+        print("\n" + "=" * 70)
+        print("✅ Broadcaster Agent is RUNNING")
+        print("=" * 70)
+        print("[INFO] Mouse and keyboard control is now ACTIVE")
+        print("[INFO] iPhone/Browser can now control your desktop!")
+        print("[INFO] Press Ctrl+C to stop")
+        print("=" * 70 + "\n")
+        
         while sio.connected:
-            asyncio.sleep(1)
+            time.sleep(1)
     except KeyboardInterrupt:
         print("\n[INFO] Shutting down broadcaster agent...")
         sio.disconnect()
         print("[INFO] Disconnected. Goodbye!")
 
 if __name__ == '__main__':
-    import uuid
-    import asyncio
-    
     main()
