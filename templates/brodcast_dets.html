@@ -298,14 +298,13 @@
                     <span class="password-label">Password:</span>
                     <div class="password-value" id="passwordDisplay"></div>
                     <button type="button" class="copy-btn-small" onclick="copyToClipboard('passwordDisplay')">Copy</button>
-                </div>
-
-                <!-- QR Code Section -->
-                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; text-align: center;" id="qrCodeSection" style="display: none;">
-                    <div style="color: #3498db; font-weight: bold; margin-bottom: 10px; font-size: 0.9rem;">📱 QR Code (Scan for Password):</div>
-                    <div style="background: white; padding: 10px; border-radius: 5px; display: inline-block;">
-                        <img id="qrCodeDisplay" src="" alt="QR Code for password" style="max-width: 200px; height: auto; min-width: 150px; min-height: 150px; border: 2px solid #3498db; display: block;">
+                </div>                <!-- QR Code Section -->
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; text-align: center;" id="qrCodeSection" style="display: none;">
+                    <div style="color: #3498db; font-weight: bold; margin-bottom: 15px; font-size: 0.95rem;">📱 QR Code (Scan with Phone Camera for Password):</div>
+                    <div style="background: white; padding: 15px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                        <img id="qrCodeDisplay" alt="QR Code for password" style="width: 220px; height: 220px; image-rendering: pixelated; border: 1px solid #ddd;">
                     </div>
+                    <div style="margin-top: 10px; color: #27ae60; font-size: 0.85rem;">Point your phone camera at the QR code above</div>
                 </div>
 
                 <div class="password-row">
@@ -471,14 +470,28 @@ Instructions:
                 document.getElementById('deviceIdDisplay').textContent = data.device_id;
                 
                 // Display QR code
-                if (data.qr_code && data.qr_code.length > 0) {
+                if (data.qr_code) {
                     const qrImg = document.getElementById('qrCodeDisplay');
                     const qrSection = document.getElementById('qrCodeSection');
-                    qrImg.src = data.qr_code;  // URL like /qr/device-id.png
+                    
+                    // Set the data URI
+                    qrImg.src = data.qr_code;
+                    
+                    // Ensure image loads
+                    qrImg.onload = function() {
+                        console.log('✓ QR Code image loaded successfully');
+                        qrSection.style.display = 'block';
+                    };
+                    
+                    qrImg.onerror = function() {
+                        console.error('✗ Failed to load QR code image');
+                        qrSection.style.display = 'block';  // Show anyway
+                    };
+                    
+                    // Set immediately in case of cache
                     qrSection.style.display = 'block';
-                    console.log('QR Code URL loaded:', data.qr_code);
                 } else {
-                    console.warn('QR Code data not available');
+                    console.error('✗ QR Code data not received from server');
                 }
 
                 document.getElementById('autoViewerLink').textContent = data.auto_viewer_link;
@@ -524,15 +537,8 @@ Instructions:
                 return;
             }
             
-            // Clean up QR code image before redirecting
-            fetch(`/cleanup_qr/${data.deviceId}`, { method: 'POST' })
-                .then(res => res.json())
-                .catch(err => console.warn('Could not cleanup QR code:', err));
-            
             // Redirect to broadcast view with device ID
-            setTimeout(() => {
-                window.location.href = data.broadcasterUrl;
-            }, 200);
+            window.location.href = data.broadcasterUrl;
         }
 
         // Form validation
