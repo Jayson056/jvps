@@ -188,7 +188,7 @@ def connect_to_render(session_id_input, password_input):
                 'role': 'broadcaster_agent'
             },
             transports=['websocket', 'polling'],
-            wait_timeout=10
+            wait_timeout=30
         )
         
         # Emit registration

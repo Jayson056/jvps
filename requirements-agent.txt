@@ -5,6 +5,7 @@
 # Socket Communication
 python-socketio==5.16.0
 python-engineio==4.13.0
+websocket-client==1.9.0
 
 # Desktop Control and GUI
 PyAutoGUI==0.9.54
