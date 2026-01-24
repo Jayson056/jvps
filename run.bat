@@ -1,9 +1,9 @@
 @echo off
-REM OmniStream Pro - Easy Setup Script
+REM JVPS Desktop Remote - Setup Script
 echo.
 echo ====================================
-echo   OmniStream Pro - Setup & Run
-echo ====================================
+echo   JVPS Desktop Remote - Setup & Run
+echo =====================================
 echo.
 
 REM Check if Python is installed
@@ -34,8 +34,8 @@ cls
 
 echo.
 echo ====================================
-echo   OmniStream Pro - READY TO START
-echo ====================================
+echo   JVPS Desktop Remote - READY TO START
+echo =====================================
 echo.
 echo Server starting on http://localhost:58247
 echo.

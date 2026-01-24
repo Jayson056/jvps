@@ -1,0 +1,25 @@
+# JVPS Desktop Remote - ngrok Configuration
+# Expose local server to internet for remote access
+
+# Command to tunnel Flask server (port 5000) through ngrok:
+.\ngrok.exe http 5000
+
+# Full command with authtoken (if needed):
+# .\ngrok.exe http 5000 --authtoken=YOUR_AUTHTOKEN
+
+# Advanced options:
+# .\ngrok.exe http 5000 --region us --subdomain jvps-remote
+# .\ngrok.exe http 5000 --hostname=example.ngrok.io
+
+# After running, ngrok will display:
+# - Public URL (e.g., https://xxxx-xx-xxx-xxx-xx.ngrok-free.app)
+# - Share this URL with viewers to access remote session
+# - Local traffic: http://localhost:4040 (ngrok dashboard)
+
+# SETUP INSTRUCTIONS:
+# 1. Download ngrok from https://ngrok.com/download
+# 2. Extract to project folder or add to PATH
+# 3. Create ngrok account and authenticate:
+#    .\ngrok.exe config add-authtoken YOUR_TOKEN
+# 4. Run this command to expose JVPS server
+# 5. Share the generated public URL with viewers

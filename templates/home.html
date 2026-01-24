@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniStream Pro — Home</title>
+    <title>JVPS Desktop Remote — Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
     <style>
         .hero {
@@ -111,23 +111,23 @@
 <body>
     <div class="container">
         <div class="hero">
-            <h1>🎬 OmniStream Pro</h1>
-            <h2>Real-time Screen Sharing & Remote Control</h2>
-            <p>Share your screen and control or be controlled with ultra-low latency</p>
+            <h1>🖥️ JVPS Desktop Remote</h1>
+            <h2>Flask-Based Remote Desktop & Screen Sharing</h2>
+            <p>Real-time mouse, keyboard, and display control through your browser</p>
         </div>
 
         <!-- Main Actions -->
         <div class="actions">
             <a href="{{ url_for('brodcast_dets') }}" class="action-card">
-                <h3>📺 Start Broadcasting</h3>
-                <p>Share your screen with viewers</p>
-                <span class="badge">NEW SESSION</span>
+                <h3>📺 Create Session</h3>
+                <p>Host a new remote desktop session</p>
+                <span class="badge">BROADCASTER</span>
             </a>
             
             <a href="{{ url_for('view_list') }}" class="action-card secondary">
-                <h3>👁️ Watch Live</h3>
-                <p>Connect to an active broadcast</p>
-                <span class="badge">VIEWER MODE</span>
+                <h3>👁️ Connect Session</h3>
+                <p>Join an active remote session</p>
+                <span class="badge">VIEWER</span>
             </a>
         </div>
 
@@ -135,17 +135,17 @@
         <div class="features">
             <h3>✨ Key Features</h3>
             <ul>
-                <li>🔴 <strong>Live Screen Sharing:</strong> Ultra-low latency WebRTC streaming</li>
-                <li>🖱️ <strong>Full Remote Control:</strong> Mouse movement, clicks, and keyboard input</li>
-                <li>🔄 <strong>Auto-Connect:</strong> Share a direct link for instant access</li>
-                <li>📊 <strong>Real-time Status:</strong> Connection metrics and latency monitoring</li>
-                <li>🔐 <strong>Session-Based:</strong> Each broadcast session has a unique ID</li>
-                <li>⚡ <strong>WebRTC P2P:</strong> Direct peer-to-peer connections for speed</li>
+                <li>🔴 <strong>WebRTC Streaming:</strong> Ultra-low latency video transmission</li>
+                <li>🖱️ <strong>Remote Desktop Control:</strong> Full mouse movement, clicks, and keyboard input</li>
+                <li>🌐 <strong>Web-Based Access:</strong> No software installation required</li>
+                <li>🔐 <strong>Password Protection:</strong> Secure session-based authentication</li>
+                <li>👥 <strong>Multi-Viewer Support:</strong> Multiple viewers per broadcaster</li>
+                <li>⚡ <strong>WebSocket Communication:</strong> Real-time low-latency messaging</li>
             </ul>
         </div>
 
         <footer>
-            <p>&copy; 2026 OmniStream Pro — Next Generation Screen Sharing</p>
+            <p>&copy; 2026 JVPS Desktop Remote — Remote Desktop Control & Screen Sharing</p>
         </footer>
     </div>
 </body>

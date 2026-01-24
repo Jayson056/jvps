@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniStream Pro — Broadcast Setup</title>
+    <title>JVPS Desktop Remote — Create Session</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
     <style>
         .setup-container {
@@ -249,22 +249,22 @@
 <body>
     <div class="setup-container">
         <div class="setup-header">
-            <h1>🎬 Start Broadcasting</h1>
-            <p>Create your broadcast session with secure access</p>
+            <h1>🖥️ Create Remote Session</h1>
+            <p>Set up your desktop sharing session with password protection</p>
         </div>
 
         <div class="info-banner">
-            ℹ️ Enter a room name and a secure password will be generated automatically.
+            ℹ️ Enter a session name and a secure password will be generated automatically. Share both with your viewers.
         </div>
 
         <form id="broadcastForm">
             <div class="form-group">
-                <label for="roomName">🏠 Room Display Name *</label>
+                <label for="roomName">📺 Session Name *</label>
                 <input 
                     type="text" 
                     id="roomName" 
                     name="roomName" 
-                    placeholder="e.g., My Desktop, Office Meeting Room"
+                    placeholder="e.g., Desktop Support, Screen Demo"
                     required
                     minlength="3"
                     maxlength="50"

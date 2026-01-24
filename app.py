@@ -594,8 +594,8 @@ def handle_ping(data):
 # Main
 # ---------------------------
 if __name__ == "__main__":
-    log_event('STARTUP', 'Starting OmniStream Pro server...')
-    print("[INFO] Starting OmniStream Pro server...")
+    log_event('STARTUP', 'Starting JVPS Desktop Remote server...')
+    print("[INFO] Starting JVPS Desktop Remote server...")
     print("[INFO] Navigate to http://localhost:5000/ to start")
     print("[INFO] Logs are being saved to logs.txt")
-    socketio.run(app, host="0.0.0.0", port=58247, debug=False, use_reloader=False)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=False, use_reloader=False)
