@@ -1,5 +1,5 @@
 # server/app.py
-from flask import Flask, render_template, request, jsonify, session as flask_session, redirect, url_for, send_file
+from flask import Flask, render_template, request, jsonify, session as flask_session, redirect, url_for, send_file, Response
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from werkzeug.middleware.proxy_fix import ProxyFix
 import uuid
@@ -8,6 +8,8 @@ import time
 import secrets
 import hashlib
 import os
+import io
+import wave
 from datetime import datetime
 from pathlib import Path
 import qrcode
@@ -30,6 +32,21 @@ try:
     PYPERCLIP_AVAILABLE = True
 except ImportError:
     PYPERCLIP_AVAILABLE = False
+
+# Native Screen & Audio Capture imports (Zero browser needed on host)
+try:
+    import mss
+    import cv2
+    import numpy as np
+    MSS_AVAILABLE = True
+except ImportError:
+    MSS_AVAILABLE = False
+
+try:
+    import sounddevice as sd
+    SOUNDDEVICE_AVAILABLE = True
+except ImportError:
+    SOUNDDEVICE_AVAILABLE = False
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'supersecretkey')
@@ -106,6 +123,134 @@ log_event('STARTUP', f'Application started. Permanent session ready: {PERMANENT_
 if PYAUTOGUI_AVAILABLE:
     pyautogui.FAILSAFE = True
 MOUSE_SPEED = 0.05  # seconds for smooth movement
+
+# ---------------------------
+# NATIVE SCREEN & AUDIO STREAMERS (ZERO BROWSER REQUIRED ON HOST)
+# ---------------------------
+class NativeDesktopStreamer:
+    """
+    Direct host desktop screen capture using mss + cv2.
+    Streams directly to remote viewers via HTTP MJPEG (/stream/<session_id>)
+    without requiring any browser (Chrome/Edge/Playwright) on the host machine.
+    """
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._latest_jpeg = None
+        self._running = False
+        self._clients_count = 0
+        self.width = 1920
+        self.height = 1080
+        self._thread = None
+        
+    def start(self):
+        if not MSS_AVAILABLE or self._running:
+            return
+        self._running = True
+        self._thread = threading.Thread(target=self._capture_loop, daemon=True, name="NativeScreenCapture")
+        self._thread.start()
+        log_event('STREAMER', 'NativeDesktopStreamer background thread started')
+
+    def add_client(self):
+        with self._lock:
+            self._clients_count += 1
+
+    def remove_client(self):
+        with self._lock:
+            self._clients_count = max(0, self._clients_count - 1)
+
+    def get_latest_jpeg(self):
+        with self._lock:
+            return self._latest_jpeg
+
+    def _capture_loop(self):
+        try:
+            with mss.mss() as sct:
+                mon = sct.monitors[1]
+                self.width = mon['width']
+                self.height = mon['height']
+                log_event('STREAMER', f'Native monitor detected: {self.width}x{self.height}')
+                target_w = min(self.width, 1600)
+                target_h = int(self.height * (target_w / self.width))
+                
+                while self._running:
+                    # When viewers are connected, stream at 20-25 FPS; otherwise throttle to 1 FPS
+                    is_active = self._clients_count > 0
+                    sleep_time = 0.04 if is_active else 0.5
+                    
+                    try:
+                        raw = sct.grab(mon)
+                        img = np.frombuffer(raw.raw, dtype=np.uint8).reshape((raw.height, raw.width, 4))
+                        if target_w != self.width:
+                            small = cv2.resize(img, (target_w, target_h), interpolation=cv2.INTER_AREA)
+                        else:
+                            small = img
+                        _, jpeg = cv2.imencode('.jpg', small, [cv2.IMWRITE_JPEG_QUALITY, 65])
+                        with self._lock:
+                            self._latest_jpeg = jpeg.tobytes()
+                    except Exception:
+                        time.sleep(0.5)
+                    
+                    time.sleep(sleep_time)
+        except Exception as e:
+            log_event('STREAMER_ERROR', f'Native screen capture loop exited: {e}')
+
+
+class NativeAudioStreamer:
+    """
+    Direct host audio capture using sounddevice.
+    Streams live microphone/system audio to viewers without requiring a browser.
+    """
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._subscribers = set()
+        self._running = False
+        self._stream = None
+        self.sample_rate = 16000
+        
+    def start(self):
+        if not SOUNDDEVICE_AVAILABLE or self._running:
+            return
+        try:
+            self._running = True
+            self._stream = sd.InputStream(
+                samplerate=self.sample_rate,
+                channels=1,
+                dtype='int16',
+                blocksize=1024,
+                callback=self._audio_callback
+            )
+            self._stream.start()
+            log_event('AUDIO_STREAMER', 'NativeAudioStreamer started (16kHz mono)')
+        except Exception as e:
+            log_event('AUDIO_ERROR', f'Failed to start audio capture: {e}')
+            
+    def _audio_callback(self, indata, frames, time_info, status):
+        chunk = indata.tobytes()
+        with self._lock:
+            for q in list(self._subscribers):
+                try:
+                    q.append(chunk)
+                    if len(q) > 40:
+                        q.pop(0)
+                except Exception:
+                    pass
+
+    def subscribe(self):
+        q = []
+        with self._lock:
+            self._subscribers.add(q)
+        return q
+
+    def unsubscribe(self, q):
+        with self._lock:
+            self._subscribers.discard(q)
+
+native_streamer = NativeDesktopStreamer()
+native_streamer.start()
+
+audio_streamer = NativeAudioStreamer()
+audio_streamer.start()
+
 
 
 # ---------------------------
@@ -448,26 +593,98 @@ def brodview_new():
     log_event('DEPRECATED', 'Old /broadcast/new route accessed. Redirecting to /brodcast_dets')
     return redirect(url_for('brodcast_dets'))
 
+@app.route('/stream/<session_id>')
+def stream_video(session_id):
+    """
+    Live HTTP MJPEG video stream of the host desktop screen.
+    Works natively across iOS Safari, Android Chrome, and all desktop browsers.
+    Requires zero browser on host.
+    """
+    # Verify access: permanent session or verified in session
+    if session_id != PERMANENT_SESSION_ID and not flask_session.get(f'verified_{session_id}'):
+        return "Unauthorized: Please enter session password", 401
+
+    def generate():
+        native_streamer.add_client()
+        try:
+            while True:
+                frame = native_streamer.get_latest_jpeg()
+                if frame:
+                    yield (b'--frame\r\n'
+                           b'Content-Type: image/jpeg\r\n'
+                           b'Content-Length: ' + str(len(frame)).encode() + b'\r\n\r\n' + frame + b'\r\n')
+                time.sleep(0.04) # ~25 FPS
+        finally:
+            native_streamer.remove_client()
+
+    response = Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['X-Accel-Buffering'] = 'no' # Disable Cloudflare buffering
+    return response
+
+@app.route('/audio_stream/<session_id>')
+def stream_audio(session_id):
+    """
+    Live audio stream of the host microphone / system audio.
+    """
+    if session_id != PERMANENT_SESSION_ID and not flask_session.get(f'verified_{session_id}'):
+        return "Unauthorized", 401
+
+    def generate():
+        # Standard 44-byte RIFF WAV header for 16kHz mono 16-bit PCM streaming
+        buf = io.BytesIO()
+        with wave.open(buf, 'wb') as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(2)
+            wf.setframerate(16000)
+            wf.writeframes(b'')
+        yield buf.getvalue()[:44]
+
+        q = audio_streamer.subscribe()
+        try:
+            while True:
+                if q:
+                    chunk = q.pop(0)
+                    yield chunk
+                else:
+                    time.sleep(0.02)
+        finally:
+            audio_streamer.unsubscribe(q)
+
+    response = Response(generate(), mimetype='audio/wav')
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['X-Accel-Buffering'] = 'no'
+    return response
+
 @app.route('/view/<session_id>')
 def view_screen(session_id):
     if session_id not in sessions:
         log_event('ERROR', f'Session not found: {session_id}')
         return redirect(url_for('view_list'))
     
+    # Reload stored password from .env for permanent session in case user edited .env
+    broadcaster_id = sessions[session_id]['broadcaster']
+    if session_id == PERMANENT_SESSION_ID:
+        current_env_pass = os.environ.get("JVPS_PASSWORD")
+        if current_env_pass:
+            broadcast_sessions[broadcaster_id]['password'] = current_env_pass
+            
+    stored_password = broadcast_sessions.get(broadcaster_id, {}).get('password', '')
+    
     # Check if password is provided in query parameter or session
     password_param = request.args.get('pwd', '')
     session_pass = flask_session.get(f'verified_{session_id}')
-    
-    # Find broadcaster and get stored password
-    broadcaster_id = sessions[session_id]['broadcaster']
-    stored_password = broadcast_sessions.get(broadcaster_id, {}).get('password', '')
     
     # If password is provided in URL, verify it
     if password_param:
         if password_param == stored_password:
             flask_session[f'verified_{session_id}'] = True
             log_event('USER_ACTION', f'User verified password for session: {session_id}')
-            return render_template('view_screen.html', session_id=session_id)
+            return render_template('view_screen.html', 
+                                   session_id=session_id, 
+                                   host_width=native_streamer.width, 
+                                   host_height=native_streamer.height)
         else:
             log_event('SECURITY', f'Invalid password attempt for session: {session_id}')
             return redirect(url_for('view_password', session_id=session_id) + '?error=1')
@@ -475,7 +692,10 @@ def view_screen(session_id):
     # If already verified in session, allow access
     if session_pass:
         log_event('USER_ACTION', f'User accessing view screen for session: {session_id}')
-        return render_template('view_screen.html', session_id=session_id)
+        return render_template('view_screen.html', 
+                               session_id=session_id, 
+                               host_width=native_streamer.width, 
+                               host_height=native_streamer.height)
     
     # Otherwise, redirect to password entry
     log_event('USER_ACTION', f'User redirected to password entry for session: {session_id}')
@@ -507,6 +727,11 @@ def verify_password_api(session_id):
     
     # Get stored password
     broadcaster_id = sessions[session_id]['broadcaster']
+    if session_id == PERMANENT_SESSION_ID:
+        current_env_pass = os.environ.get("JVPS_PASSWORD")
+        if current_env_pass:
+            broadcast_sessions[broadcaster_id]['password'] = current_env_pass
+            
     stored_password = broadcast_sessions.get(broadcaster_id, {}).get('password', '')
     
     if password == stored_password:
@@ -523,8 +748,15 @@ def auto_viewer(session_id):
     if session_id not in sessions:
         log_event('ERROR', f'Auto-viewer: Session not found: {session_id}')
         return "Session not found", 404
+        
+    # Auto-verify
+    flask_session[f'verified_{session_id}'] = True
+    
     log_event('USER_ACTION', f'User accessing auto-viewer for session: {session_id}')
-    return render_template('auto_viewer.html', session_id=session_id)
+    return render_template('auto_viewer.html', 
+                           session_id=session_id,
+                           host_width=native_streamer.width,
+                           host_height=native_streamer.height)
 
 # ---------------------------
 # Socket.IO events

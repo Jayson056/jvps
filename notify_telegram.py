@@ -44,18 +44,20 @@ def send_telegram_notification():
         print(f"[WARN] Cannot send Telegram notification: missing bot_token or chat_id")
         return False
         
-    viewer_link = f"{cfg['base_url']}/auto_viewer/{cfg['session_id']}?pwd={cfg['password']}"
+    view_link = f"{cfg['base_url']}/view/{cfg['session_id']}?pwd={cfg['password']}"
+    auto_link = f"{cfg['base_url']}/auto_viewer/{cfg['session_id']}?pwd={cfg['password']}"
     
     message = (
         f"🖥️ <b>JVPS Desktop Remote LIVE</b>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━\n"
         f"📡 <b>Room:</b> <code>{cfg['room_name']}</code>\n"
-        f"🔗 <b>Viewer Link:</b> <a href=\"{viewer_link}\">{viewer_link}</a>\n"
+        f"🔗 <b>Direct View:</b> <a href=\"{view_link}\">{view_link}</a>\n"
+        f"📱 <b>Control View:</b> <a href=\"{auto_link}\">{auto_link}</a>\n"
         f"🔑 <b>Password:</b> <code>{cfg['password']}</code>\n"
         f"🔊 <b>Audio:</b> Enabled (Live Desktop/Mic)\n"
         f"🖱️ <b>Control:</b> Isolated Virtual Cursor (Host Protected)\n"
         f"📋 <b>Clipboard:</b> Bidirectional Copy/Paste\n"
-        f"🕒 <b>Broadcaster:</b> Active 24/7 (Headless)\n"
+        f"🕒 <b>Broadcaster:</b> Active 24/7 (Native - Zero Browser on Host)\n"
         f"━━━━━━━━━━━━━━━━━━━━━━"
     )
     

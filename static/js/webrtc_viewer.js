@@ -120,17 +120,19 @@ function startWebRTC() {
     // Handle incoming video & audio stream
     pc.ontrack = event => {
         console.log("[INFO] Remote stream received, track kind:", event.track.kind);
-        if (remoteVideo.srcObject !== event.streams[0]) {
-            remoteVideo.srcObject = event.streams[0];
-            remoteVideo.play().then(() => {
-                console.log("[INFO] Video & audio stream playback started");
-            }).catch(err => {
-                console.warn("[WARN] Autoplay with sound prevented by browser:", err);
-                // Attempt muted play if sound was blocked by browser policy
-                remoteVideo.muted = true;
-                remoteVideo.play();
-                showUnmuteBtn();
-            });
+        if (remoteVideo && typeof remoteVideo.play === 'function') {
+            if (remoteVideo.srcObject !== event.streams[0]) {
+                remoteVideo.srcObject = event.streams[0];
+                remoteVideo.play().then(() => {
+                    console.log("[INFO] Video & audio stream playback started");
+                }).catch(err => {
+                    console.warn("[WARN] Autoplay with sound prevented by browser:", err);
+                    // Attempt muted play if sound was blocked by browser policy
+                    remoteVideo.muted = true;
+                    remoteVideo.play();
+                    showUnmuteBtn();
+                });
+            }
         }
     };
 
@@ -214,15 +216,17 @@ function sendControlInput(action) {
     });
 }
 
-// Helper function to calculate video display area accounting for aspect ratio
+// Helper function to calculate video/screen display area accounting for aspect ratio
 function getVideoDisplayArea() {
-    if (!remoteVideo.videoWidth || !remoteVideo.videoHeight) {
+    const vW = remoteVideo.videoWidth || remoteVideo.naturalWidth || window.HOST_WIDTH || 1920;
+    const vH = remoteVideo.videoHeight || remoteVideo.naturalHeight || window.HOST_HEIGHT || 1080;
+    if (!vW || !vH) {
         return null;
     }
     
     const rect = remoteVideo.getBoundingClientRect();
     const containerAspect = rect.width / rect.height;
-    const videoAspect = remoteVideo.videoWidth / remoteVideo.videoHeight;
+    const videoAspect = vW / vH;
     
     let displayWidth, displayHeight, offsetX = 0, offsetY = 0;
     
@@ -236,28 +240,30 @@ function getVideoDisplayArea() {
         offsetX = (rect.width - displayWidth) / 2;
     }
     
-    return { displayWidth, displayHeight, offsetX, offsetY, containerRect: rect };
+    return { displayWidth, displayHeight, offsetX, offsetY, containerRect: rect, vW, vH };
 }
 
-// Translate client mouse position to video coordinates
+// Translate client mouse position to host screen coordinates
 function getScaledCoordinates(e) {
     const displayArea = getVideoDisplayArea();
     if (!displayArea) return null;
     
-    const { displayWidth, displayHeight, offsetX, offsetY, containerRect } = displayArea;
-    const cursorX = e.clientX - containerRect.left;
-    const cursorY = e.clientY - containerRect.top;
+    const { displayWidth, displayHeight, offsetX, offsetY, containerRect, vW, vH } = displayArea;
+    const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+    const cursorX = clientX - containerRect.left;
+    const cursorY = clientY - containerRect.top;
     
     if (cursorX < offsetX || cursorY < offsetY || 
         cursorX > (offsetX + displayWidth) || 
         cursorY > (offsetY + displayHeight)) {
-        return null; // Outside actual video frame
+        return null; // Outside actual screen frame
     }
     
     const relativeX = (cursorX - offsetX) / displayWidth;
     const relativeY = (cursorY - offsetY) / displayHeight;
-    const x = Math.floor(relativeX * remoteVideo.videoWidth);
-    const y = Math.floor(relativeY * remoteVideo.videoHeight);
+    const x = Math.floor(relativeX * vW);
+    const y = Math.floor(relativeY * vH);
     
     return { x, y, cursorX, cursorY };
 }

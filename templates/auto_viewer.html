@@ -79,8 +79,13 @@
         </div>
 
         <!-- Video Container -->
-        <div class="video-container" id="vContainer">
-            <video id="remoteVideo" autoplay playsinline style="width: 100%; background: #000;"></video>
+        <div class="video-container" id="vContainer" style="position: relative; text-align: center; background: #000; border-radius: 8px; overflow: hidden;">
+            {% if session_id == 'SESSION-SERVER-1-DEPLOYED-SERVICES' %}
+                <img id="remoteVideo" src="/stream/{{ session_id }}" alt="Live Desktop" style="width: 100%; height: auto; max-height: 75vh; object-fit: contain; display: block; margin: 0 auto; background: #000;" />
+                <audio id="remoteAudio" autoplay src="/audio_stream/{{ session_id }}"></audio>
+            {% else %}
+                <video id="remoteVideo" autoplay playsinline style="width: 100%; background: #000;"></video>
+            {% endif %}
         </div>
 
         <!-- Control Panel -->
@@ -101,9 +106,10 @@
         <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #3498db;">
             <h3 style="margin-top: 0;">Stream & Controls:</h3>
             <ul style="margin: 10px 0; padding-left: 20px; line-height: 1.6;">
-                <li><strong>Isolated Cursor:</strong> By default in <em>View-Only</em>, your pointer moves locally as a blue virtual cursor without affecting the host's physical mouse.</li>
-                <li><strong>Remote Control:</strong> Click <em>Mouse: VIEW ONLY</em> to toggle control. When enabled, clicks and drags interact with the host instantly with zero hover hijacking.</li>
-                <li><strong>Sound:</strong> Live desktop audio and microphone are streamed in real time. Click <em>Sound</em> to mute/unmute.</li>
+                <li><strong>Native 24/7 Desktop:</strong> Host screen and audio are streamed directly in real-time with zero browser required on host.</li>
+                <li><strong>Isolated Cursor:</strong> In <em>View-Only</em>, your pointer moves locally as a blue virtual cursor without affecting the host's physical mouse.</li>
+                <li><strong>Remote Control:</strong> Click <em>Mouse: VIEW ONLY</em> to toggle control. When enabled, clicks and drags interact with host instantly with zero hover hijacking.</li>
+                <li><strong>Sound:</strong> Live host audio and microphone are streamed in real time. Click <em>Sound</em> to mute/unmute.</li>
                 <li><strong>Clipboard:</strong> Click <em>Paste to Host</em> (or press Ctrl+V while focused) to send text to host. Click <em>Copy Host Clipboard</em> to fetch host clipboard to your device.</li>
             </ul>
         </div>
@@ -111,8 +117,43 @@
 
     <script>
         window.SESSION_ID = "{{ session_id }}";
+        window.HOST_WIDTH = {{ host_width or 1920 }};
+        window.HOST_HEIGHT = {{ host_height or 1080 }};
         window.AUTO_APPROVE = true;
         window.PASSWORD = "{{ password }}";
+
+        const remoteImg = document.getElementById('remoteVideo');
+        if (remoteImg && remoteImg.tagName === 'IMG') {
+            remoteImg.onload = () => {
+                if (typeof updateStatus === 'function') {
+                    updateStatus('Live Desktop (Connected)', 'connected');
+                }
+            };
+            remoteImg.onerror = () => {
+                if (typeof updateStatus === 'function') {
+                    updateStatus('Reconnecting screen stream...', 'connecting');
+                }
+                setTimeout(() => {
+                    remoteImg.src = `/stream/{{ session_id }}?t=` + Date.now();
+                }, 2000);
+            };
+        }
+
+        const btnSound = document.getElementById('btnSound');
+        const remoteAudio = document.getElementById('remoteAudio');
+        let soundOn = true;
+        if (btnSound) {
+            btnSound.addEventListener('click', () => {
+                soundOn = !soundOn;
+                if (remoteAudio) {
+                    remoteAudio.muted = !soundOn;
+                } else if (remoteVideo && typeof remoteVideo.muted !== 'undefined') {
+                    remoteVideo.muted = !soundOn;
+                }
+                btnSound.textContent = soundOn ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+                btnSound.className = soundOn ? 'btn btn-primary' : 'btn btn-secondary';
+            });
+        }
     </script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='js/webrtc_viewer.js') }}"></script>

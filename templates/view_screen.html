@@ -87,7 +87,12 @@
     <input type="text" id="kbdTrigger" autocomplete="off" autofocus>
     
     <div class="stage">
-        <video id="remoteVideo" autoplay playsinline></video>
+        {% if session_id == 'SESSION-SERVER-1-DEPLOYED-SERVICES' %}
+            <img id="remoteVideo" src="/stream/{{ session_id }}" alt="Desktop Stream" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; display: block; object-fit: contain; background: #000;" />
+            <audio id="remoteAudio" autoplay src="/audio_stream/{{ session_id }}"></audio>
+        {% else %}
+            <video id="remoteVideo" autoplay playsinline></video>
+        {% endif %}
         <div id="loadingIndicator" style="position: absolute; text-align: center; color: #999;">
             <div style="font-size: 14px;">⏳ Waiting for broadcast...</div>
         </div>
@@ -113,7 +118,10 @@
 
     <script>
         window.SESSION_ID = "{{ session_id }}";
+        window.HOST_WIDTH = {{ host_width or 1920 }};
+        window.HOST_HEIGHT = {{ host_height or 1080 }};
         const video = document.getElementById('remoteVideo');
+        const remoteAudio = document.getElementById('remoteAudio');
         const kbdTrigger = document.getElementById('kbdTrigger');
         const mousePad = document.getElementById('mousePad');
         const html = document.documentElement;
@@ -154,12 +162,8 @@
         // --- Mobile Keyboard Logic ---
         document.getElementById('btnKbd').onclick = () => {
             kbdTrigger.focus();
-            kbdTrigger.click(); // Extra trigger for some mobile browsers
+            kbdTrigger.click();
         };
-
-        // --- Mousepad Logic ---
-        document.getElementById('btnPad').onclick = () => { mousePad.style.display = 'block'; };
-        document.getElementById('closePad').onclick = () => { mousePad.style.display = 'none'; };
 
         // --- Theme Toggle Logic ---
         document.getElementById('btnTheme').onclick = () => {
@@ -169,25 +173,71 @@
             localStorage.setItem('theme', newTheme);
         };
 
-        // Initialize theme from local storage
         const savedTheme = localStorage.getItem('theme') || 'dark';
         html.setAttribute('data-theme', savedTheme);
 
+        // --- Clipboard Logic ---
+        document.getElementById('btnPaste').onclick = async () => {
+            let text = '';
+            try {
+                text = await navigator.clipboard.readText();
+            } catch (e) {
+                text = prompt('Paste text to send to host:');
+            }
+            if (text) {
+                socket.emit('clipboard_set', { text: text });
+                alert('Copied to host clipboard!');
+            }
+        };
+
+        document.getElementById('btnCopy').onclick = () => {
+            socket.emit('clipboard_get', {}, async (response) => {
+                if (response && response.text) {
+                    try {
+                        await navigator.clipboard.writeText(response.text);
+                        alert('Host clipboard copied to your device!');
+                    } catch (e) {
+                        prompt('Host clipboard content (Ctrl+C to copy):', response.text);
+                    }
+                } else {
+                    alert('Host clipboard is empty.');
+                }
+            });
+        };
+
+        // --- Toggle Control Logic ---
+        let controlEnabled = false;
+        const btnToggleControl = document.getElementById('btnToggleControl');
+        if (btnToggleControl) {
+            btnToggleControl.onclick = function() {
+                controlEnabled = !controlEnabled;
+                if (typeof mouseEnabled !== 'undefined') {
+                    mouseEnabled = controlEnabled;
+                }
+                this.style.background = controlEnabled ? 'rgba(52, 152, 219, 0.4)' : '';
+                this.title = controlEnabled ? 'Control: ACTIVE (Tap/click to interact)' : 'Control: VIEW ONLY';
+            };
+        }
+
         // --- Audio Logic ---
         document.getElementById('btnMute').onclick = function() {
-            video.muted = !video.muted;
-            this.innerText = video.muted ? '🔇' : '🔊';
+            if (remoteAudio) {
+                remoteAudio.muted = !remoteAudio.muted;
+                this.innerText = remoteAudio.muted ? '🔇' : '🔊';
+            } else if (video && typeof video.muted !== 'undefined') {
+                video.muted = !video.muted;
+                this.innerText = video.muted ? '🔇' : '🔊';
+            }
         };
 
         // --- Auto-hide Toolbar ---
         let hideT;
         const resetT = () => {
-            if (toolbarLocked) return; // Don't hide if locked
+            if (toolbarLocked) return;
             toolbar.classList.remove('hidden');
             clearTimeout(hideT);
             hideT = setTimeout(() => {
-                // Don't hide if mousepad is open
-                if (mousePad.style.display !== 'block') {
+                if (mousePad && mousePad.style.display !== 'block') {
                     toolbar.classList.add('hidden');
                 }
             }, 3000);
@@ -196,49 +246,29 @@
         document.addEventListener('touchstart', resetT);
         resetT();
 
-        // --- AUTO-FULLSCREEN ON LANDSCAPE (Phone Only) ---
-        function handleOrientationChange() {
-            if (!isPhoneUser()) return; // Only for phone users
-            
-            const isLandscape = window.innerHeight < window.innerWidth;
-            console.log('Orientation:', isLandscape ? 'Landscape' : 'Portrait');
-            
-            if (isLandscape) {
-                // LANDSCAPE: Enter fullscreen and hide toolbar
-                if (!document.fullscreenElement) {
-                    const stage = document.querySelector('.stage');
-                    if (stage && stage.requestFullscreen) {
-                        stage.requestFullscreen().catch(err => console.log('Fullscreen failed:', err));
-                    } else if (stage && stage.webkitRequestFullscreen) {
-                        stage.webkitRequestFullscreen();
-                    }
-                }
-                toolbar.classList.add('fullscreen-hidden');
-            } else {
-                // PORTRAIT: Exit fullscreen and show toolbar
-                if (document.fullscreenElement) {
-                    document.exitFullscreen().catch(err => console.log('Exit fullscreen failed:', err));
-                } else if (document.webkitFullscreenElement) {
-                    document.webkitExitFullscreen();
-                }
-                // Always show toolbar in portrait
-                toolbar.classList.remove('fullscreen-hidden');
-                console.log('Toolbar should now be visible');
-            }
+        // --- Stream Status Monitor ---
+        if (video.tagName === 'IMG') {
+            video.onload = () => {
+                const loader = document.getElementById('loadingIndicator');
+                if (loader) loader.style.display = 'none';
+            };
+            video.onerror = () => {
+                const loader = document.getElementById('loadingIndicator');
+                if (loader) loader.style.display = 'block';
+                setTimeout(() => {
+                    video.src = `/stream/{{ session_id }}?t=` + Date.now();
+                }, 2000);
+            };
+        } else {
+            video.addEventListener('play', () => {
+                const loader = document.getElementById('loadingIndicator');
+                if (loader) loader.style.display = 'none';
+            });
+            video.addEventListener('pause', () => {
+                const loader = document.getElementById('loadingIndicator');
+                if (loader) loader.style.display = 'block';
+            });
         }
-
-        window.addEventListener('orientationchange', handleOrientationChange);
-        window.addEventListener('resize', handleOrientationChange);
-
-        // --- Monitor video stream status ---
-        video.addEventListener('play', () => {
-            document.getElementById('loadingIndicator').style.display = 'none';
-            console.log('[INFO] Video stream started playing');
-        });
-        video.addEventListener('pause', () => {
-            document.getElementById('loadingIndicator').style.display = 'block';
-            console.log('[INFO] Video stream paused');
-        });
     </script>
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
