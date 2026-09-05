@@ -18,10 +18,11 @@ let deviceId = null;    // Viewer device ID
 let sessionId = window.SESSION_ID || null; // Current session from template
 let broadcasterId = null; // Will be set during signaling
 
-// Control States: DEFAULT OFF to sanitize and protect host cursor!
-let mouseEnabled = false;
-let kbdEnabled = false;
+// Control States: Enabled by default for interactive desktop control
+let mouseEnabled = true;
+let kbdEnabled = true;
 let isMouseDown = false;
+let lastMouseMoveTime = 0;
 
 // Virtual cursor element for isolated pointer
 let virtualCursor = null;
@@ -218,8 +219,8 @@ function sendControlInput(action) {
 
 // Helper function to calculate video/screen display area accounting for aspect ratio
 function getVideoDisplayArea() {
-    const vW = remoteVideo.videoWidth || remoteVideo.naturalWidth || window.HOST_WIDTH || 1920;
-    const vH = remoteVideo.videoHeight || remoteVideo.naturalHeight || window.HOST_HEIGHT || 1080;
+    const vW = window.HOST_WIDTH || remoteVideo.videoWidth || remoteVideo.naturalWidth || 1920;
+    const vH = window.HOST_HEIGHT || remoteVideo.videoHeight || remoteVideo.naturalHeight || 1080;
     if (!vW || !vH) {
         return null;
     }
@@ -268,8 +269,7 @@ function getScaledCoordinates(e) {
     return { x, y, cursorX, cursorY };
 }
 
-// Virtual Cursor Mousemove:
-// IMPORTANT SANITIZATION: Passive hover moves NEVER send moveTo to the host!
+// Virtual Cursor & Host Mousemove:
 remoteVideo.addEventListener('mousemove', e => {
     initVirtualCursor();
     const coords = getScaledCoordinates(e);
@@ -286,30 +286,22 @@ remoteVideo.addEventListener('mousemove', e => {
         virtualCursor.style.background = mouseEnabled ? '#e74c3c' : '#3498db';
     }
     
-    // Only send drag movement if mouse button is held down AND control is ON!
-    if (mouseEnabled && isMouseDown) {
-        sendControlInput({
-            type: 'mouse',
-            data: { x: coords.x, y: coords.y, drag: true }
-        });
+    // Smoothly track host mouse cursor when mouseEnabled is active
+    if (mouseEnabled) {
+        const now = Date.now();
+        if (now - lastMouseMoveTime > 30) {
+            lastMouseMoveTime = now;
+            sendControlInput({
+                type: 'mouse',
+                data: { x: coords.x, y: coords.y, move: true }
+            });
+        }
     }
 });
 
 remoteVideo.addEventListener('mouseleave', () => {
     if (virtualCursor) virtualCursor.style.display = 'none';
     isMouseDown = false;
-});
-
-// Click listener
-remoteVideo.addEventListener('click', e => {
-    if (!mouseEnabled) return;
-    const coords = getScaledCoordinates(e);
-    if (!coords) return;
-    
-    sendControlInput({
-        type: 'mouse',
-        data: { x: coords.x, y: coords.y, click: true, button: 'left' }
-    });
 });
 
 // Double-click listener
@@ -337,14 +329,14 @@ remoteVideo.addEventListener('contextmenu', e => {
     });
 });
 
-// Mouse down / up for dragging
+// Mouse down / up for clicking and dragging
 remoteVideo.addEventListener('mousedown', e => {
     isMouseDown = true;
     if (!mouseEnabled) return;
     const coords = getScaledCoordinates(e);
     if (!coords) return;
     
-    const btn = e.button === 2 ? 'right' : 'left';
+    const btn = e.button === 2 ? 'right' : (e.button === 1 ? 'middle' : 'left');
     sendControlInput({
         type: 'mouse',
         data: { x: coords.x, y: coords.y, mousedown: true, button: btn }
@@ -357,7 +349,7 @@ remoteVideo.addEventListener('mouseup', e => {
     const coords = getScaledCoordinates(e);
     if (!coords) return;
     
-    const btn = e.button === 2 ? 'right' : 'left';
+    const btn = e.button === 2 ? 'right' : (e.button === 1 ? 'middle' : 'left');
     sendControlInput({
         type: 'mouse',
         data: { x: coords.x, y: coords.y, mouseup: true, button: btn }
@@ -380,21 +372,43 @@ remoteVideo.addEventListener('wheel', e => {
 // Keyboard listeners
 window.addEventListener('keydown', e => {
     if (!kbdEnabled) return;
-    // Don't capture inputs if user is typing in a text input box
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    // Don't capture inputs if user is typing in an external text input box (allow our virtual kbdTrigger)
+    if ((e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') && e.target.id !== 'kbdTrigger') return;
     
-    // Prevent browser defaults for common navigation keys
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Space'].includes(e.code)) {
+    // Prevent browser defaults for common navigation and editing keys
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Backspace', 'Space'].includes(e.code) || ['Backspace', 'Tab'].includes(e.key)) {
         e.preventDefault();
     }
-    sendControlInput({ type: 'keyboard', data: { key: e.key, action: 'down' } });
+    
+    if (e.target.id === 'kbdTrigger' && (e.key === 'Backspace' || e.key === 'Enter')) {
+        const kt = document.getElementById('kbdTrigger');
+        if (kt) kt.value = '';
+    }
+
+    sendControlInput({ type: 'keyboard', data: { key: e.key, code: e.code, action: 'down' } });
 });
 
 window.addEventListener('keyup', e => {
     if (!kbdEnabled) return;
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-    sendControlInput({ type: 'keyboard', data: { key: e.key, action: 'up' } });
+    if ((e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') && e.target.id !== 'kbdTrigger') return;
+    sendControlInput({ type: 'keyboard', data: { key: e.key, code: e.code, action: 'up' } });
 });
+
+// Mobile virtual keyboard input listener via kbdTrigger
+const kbdTrigger = document.getElementById('kbdTrigger');
+if (kbdTrigger) {
+    kbdTrigger.addEventListener('input', e => {
+        if (!kbdEnabled) return;
+        const text = kbdTrigger.value;
+        if (text) {
+            sendControlInput({
+                type: 'type_text',
+                data: { text: text }
+            });
+            kbdTrigger.value = '';
+        }
+    });
+}
 
 // ---------------------------
 // 5. Remote Clipboard Support
@@ -481,39 +495,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Toggle Mouse Control
     const toggleMouseBtn = document.getElementById('toggleMouse');
     if (toggleMouseBtn) {
-        // Reflect default OFF
-        toggleMouseBtn.innerHTML = '🖱️ Mouse: VIEW ONLY';
-        toggleMouseBtn.classList.remove('btn-primary');
-        toggleMouseBtn.classList.add('btn-secondary');
+        toggleMouseBtn.innerHTML = mouseEnabled ? '🖱️ Mouse: CONTROL' : '🖱️ Mouse: VIEW ONLY';
+        toggleMouseBtn.classList.toggle('btn-danger', mouseEnabled);
+        toggleMouseBtn.classList.toggle('btn-secondary', !mouseEnabled);
 
         toggleMouseBtn.addEventListener('click', () => {
             mouseEnabled = !mouseEnabled;
-            if (mouseEnabled) {
-                toggleMouseBtn.innerHTML = '🖱️ Mouse: CONTROL';
-                toggleMouseBtn.classList.remove('btn-secondary');
-                toggleMouseBtn.classList.add('btn-danger');
-                showToast("⚠️ Control Mode: Mouse clicks will interact with remote host");
-            } else {
-                toggleMouseBtn.innerHTML = '🖱️ Mouse: VIEW ONLY';
-                toggleMouseBtn.classList.remove('btn-danger');
-                toggleMouseBtn.classList.add('btn-secondary');
-                showToast("View-Only: Host cursor protected");
-            }
+            toggleMouseBtn.innerHTML = mouseEnabled ? '🖱️ Mouse: CONTROL' : '🖱️ Mouse: VIEW ONLY';
+            toggleMouseBtn.classList.toggle('btn-danger', mouseEnabled);
+            toggleMouseBtn.classList.toggle('btn-secondary', !mouseEnabled);
+            showToast(mouseEnabled ? "⚠️ Control Mode: Mouse clicks will interact with remote host" : "View-Only: Host cursor protected");
         });
     }
 
     // Toggle Keyboard Control
     const toggleKbdBtn = document.getElementById('toggleKbd');
     if (toggleKbdBtn) {
-        toggleKbdBtn.innerHTML = '⌨️ Kbd: OFF';
-        toggleKbdBtn.classList.remove('btn-primary');
-        toggleKbdBtn.classList.add('btn-secondary');
+        toggleKbdBtn.innerHTML = kbdEnabled ? '⌨️ Kbd: ON' : '⌨️ Kbd: OFF';
+        toggleKbdBtn.classList.toggle('btn-danger', kbdEnabled);
+        toggleKbdBtn.classList.toggle('btn-secondary', !kbdEnabled);
 
         toggleKbdBtn.addEventListener('click', () => {
             kbdEnabled = !kbdEnabled;
             toggleKbdBtn.innerHTML = kbdEnabled ? '⌨️ Kbd: ON' : '⌨️ Kbd: OFF';
             toggleKbdBtn.classList.toggle('btn-danger', kbdEnabled);
             toggleKbdBtn.classList.toggle('btn-secondary', !kbdEnabled);
+            if (kbdEnabled) {
+                const kt = document.getElementById('kbdTrigger');
+                if (kt) kt.focus();
+            }
         });
     }
 

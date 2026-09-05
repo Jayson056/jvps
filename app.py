@@ -121,7 +121,7 @@ log_event('STARTUP', f'Application started. Permanent session ready: {PERMANENT_
 
 # PyAutoGUI Configuration (only if available)
 if PYAUTOGUI_AVAILABLE:
-    pyautogui.FAILSAFE = True
+    pyautogui.FAILSAFE = False
 MOUSE_SPEED = 0.05  # seconds for smooth movement
 
 # ---------------------------
@@ -346,15 +346,48 @@ NOTE: Keep this password secure. Share the links with authorized viewers only.
     log_event('PASSWORD_GENERATED', f'Device: {device_id}, Room: {room_name}')
     return password_file
 
+KEY_MAPPING = {
+    'arrowup': 'up',
+    'arrowdown': 'down',
+    'arrowleft': 'left',
+    'arrowright': 'right',
+    'control': 'ctrl',
+    'ctrl': 'ctrl',
+    'alt': 'alt',
+    'shift': 'shift',
+    'meta': 'win',
+    'os': 'win',
+    'command': 'win',
+    'windows': 'win',
+    'win': 'win',
+    'enter': 'enter',
+    'return': 'enter',
+    'backspace': 'backspace',
+    'delete': 'delete',
+    'del': 'delete',
+    'tab': 'tab',
+    'escape': 'escape',
+    'esc': 'escape',
+    ' ': 'space',
+    'space': 'space',
+    'capslock': 'capslock',
+    'pageup': 'pageup',
+    'pagedown': 'pagedown',
+    'home': 'home',
+    'end': 'end',
+    'insert': 'insert',
+    'f1': 'f1', 'f2': 'f2', 'f3': 'f3', 'f4': 'f4',
+    'f5': 'f5', 'f6': 'f6', 'f7': 'f7', 'f8': 'f8',
+    'f9': 'f9', 'f10': 'f10', 'f11': 'f11', 'f12': 'f12',
+}
+
 def execute_control(action):
     """
     Executes incoming control commands from the remote viewer.
-    Sanitized to prevent cursor hijacking and lagging:
-    - Pure hover movements (passive mousemove) are IGNORED.
-    - Clicks and drags execute instantly with _pause=False.
+    Supports full mouse movement, left/right/middle clicks, double-click, drag, wheel scrolling,
+    keyboard typing (physical keys, special keys, modifiers), and direct text typing.
     """
     if not PYAUTOGUI_AVAILABLE:
-        print("[WARNING] pyautogui not available - remote control disabled")
         return
     
     try:
@@ -364,23 +397,20 @@ def execute_control(action):
             x, y = data.get('x'), data.get('y')
             
             if x is not None and y is not None:
-                # Sanitize: ONLY execute intentional clicks or drags!
-                # Do NOT move host physical mouse on passive hover (move: true)!
-                if data.get('click'):
-                    button = data.get('button', 'left')
-                    pyautogui.click(x, y, button=button, _pause=False)
-                elif data.get('dblclick'):
-                    button = data.get('button', 'left')
-                    pyautogui.doubleClick(x, y, button=button, _pause=False)
+                if data.get('move') or data.get('drag'):
+                    pyautogui.moveTo(x, y, _pause=False)
                 elif data.get('mousedown'):
                     button = data.get('button', 'left')
                     pyautogui.mouseDown(x, y, button=button, _pause=False)
                 elif data.get('mouseup'):
                     button = data.get('button', 'left')
                     pyautogui.mouseUp(x, y, button=button, _pause=False)
-                elif data.get('drag'):
-                    # Dragging with button held down
-                    pyautogui.moveTo(x, y, _pause=False)
+                elif data.get('click'):
+                    button = data.get('button', 'left')
+                    pyautogui.click(x, y, button=button, _pause=False)
+                elif data.get('dblclick'):
+                    button = data.get('button', 'left')
+                    pyautogui.doubleClick(x, y, button=button, _pause=False)
                 elif data.get('wheel'):
                     delta = data.get('deltaY', 0)
                     if delta != 0:
@@ -391,17 +421,39 @@ def execute_control(action):
             data = action.get('data', {})
             key = data.get('key')
             action_type = data.get('action', 'press')
+            
             if key:
-                key = key.lower() if len(key) > 1 else key
-                if action_type == 'press':
-                    pyautogui.press(key, _pause=False)
-                elif action_type == 'down':
-                    pyautogui.keyDown(key, _pause=False)
-                elif action_type == 'up':
-                    pyautogui.keyUp(key, _pause=False)
+                lower_key = key.lower()
+                mapped_key = KEY_MAPPING.get(lower_key, key)
+                
+                # Check if it's a recognized special/modifier key or supported by PyAutoGUI
+                if lower_key in KEY_MAPPING or mapped_key in pyautogui.KEYBOARD_KEYS:
+                    target_key = mapped_key if lower_key in KEY_MAPPING else key
+                    if action_type == 'down':
+                        pyautogui.keyDown(target_key, _pause=False)
+                    elif action_type == 'up':
+                        pyautogui.keyUp(target_key, _pause=False)
+                    elif action_type == 'press':
+                        pyautogui.press(target_key, _pause=False)
+                else:
+                    # Regular character or symbol (e.g. 'A', 'b', '?', '@')
+                    # Only execute on down or press to prevent double typing on keyup
+                    if action_type in ('down', 'press'):
+                        try:
+                            pyautogui.write(key, _pause=False)
+                        except Exception:
+                            pyautogui.press(key, _pause=False)
+
+        elif act_type in ('text', 'type_text'):
+            data = action.get('data', {})
+            text = data.get('text', '')
+            if text:
+                try:
+                    pyautogui.write(text, _pause=False)
+                except Exception as e:
+                    print(f"[ERROR] Failed to write text: {e}")
 
         elif act_type == 'clipboard':
-            # Direct clipboard paste command
             data = action.get('data', {})
             text = data.get('text', '')
             if text and PYPERCLIP_AVAILABLE:
@@ -843,19 +895,9 @@ def handle_signal(data):
 # ---------------------------
 @socketio.on('control_input')
 def control_input(data):
-    session_id = data.get('session_id')
-    broadcaster_id = sessions.get(session_id, {}).get('broadcaster')
-    
-    if not broadcaster_id:
-        log_event('ERROR', f'No broadcaster found for session {session_id}')
-        return
-    
-    if broadcaster_id not in devices:
-        log_event('ERROR', f'Broadcaster {broadcaster_id} not registered in devices')
-        return
-    
-    # Execute locally via PyAutoGUI
-    execute_control(data.get('action', {}))
+    # Execute control actions directly on the host machine
+    action = data.get('action', {})
+    execute_control(action)
 
 # ---------------------------
 # Remote Clipboard Sync

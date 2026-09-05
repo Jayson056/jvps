@@ -159,11 +159,33 @@
             btnLock.classList.toggle('active');
         };
 
-        // --- Mobile Keyboard Logic ---
-        document.getElementById('btnKbd').onclick = () => {
-            kbdTrigger.focus();
-            kbdTrigger.click();
-        };
+        // --- Keyboard Button Logic ---
+        const btnKbd = document.getElementById('btnKbd');
+        if (btnKbd) {
+            btnKbd.style.background = 'rgba(52, 152, 219, 0.4)';
+            btnKbd.title = 'Keyboard: ACTIVE';
+            btnKbd.onclick = () => {
+                if (typeof kbdEnabled !== 'undefined') {
+                    kbdEnabled = !kbdEnabled;
+                    btnKbd.style.background = kbdEnabled ? 'rgba(52, 152, 219, 0.4)' : '';
+                    btnKbd.title = kbdEnabled ? 'Keyboard: ACTIVE' : 'Keyboard: OFF';
+                    if (kbdEnabled) {
+                        kbdTrigger.focus({ preventScroll: true });
+                    }
+                } else {
+                    kbdTrigger.focus({ preventScroll: true });
+                }
+            };
+        }
+
+        // Keep keyboard focused when interacting with screen
+        if (video) {
+            video.addEventListener('pointerdown', () => {
+                if (kbdTrigger && (typeof kbdEnabled === 'undefined' || kbdEnabled)) {
+                    kbdTrigger.focus({ preventScroll: true });
+                }
+            });
+        }
 
         // --- Theme Toggle Logic ---
         document.getElementById('btnTheme').onclick = () => {
@@ -206,16 +228,25 @@
         };
 
         // --- Toggle Control Logic ---
-        let controlEnabled = false;
+        let controlEnabled = true;
         const btnToggleControl = document.getElementById('btnToggleControl');
         if (btnToggleControl) {
+            btnToggleControl.style.background = 'rgba(52, 152, 219, 0.4)';
+            btnToggleControl.title = 'Control: ACTIVE (Mouse & Keyboard enabled)';
             btnToggleControl.onclick = function() {
                 controlEnabled = !controlEnabled;
                 if (typeof mouseEnabled !== 'undefined') {
                     mouseEnabled = controlEnabled;
                 }
+                if (typeof kbdEnabled !== 'undefined') {
+                    kbdEnabled = controlEnabled;
+                }
                 this.style.background = controlEnabled ? 'rgba(52, 152, 219, 0.4)' : '';
                 this.title = controlEnabled ? 'Control: ACTIVE (Tap/click to interact)' : 'Control: VIEW ONLY';
+                if (btnKbd) {
+                    btnKbd.style.background = controlEnabled ? 'rgba(52, 152, 219, 0.4)' : '';
+                    btnKbd.title = controlEnabled ? 'Keyboard: ACTIVE' : 'Keyboard: OFF';
+                }
             };
         }
 
