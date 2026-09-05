@@ -52,6 +52,72 @@
             background: rgba(52, 152, 219, 0.2);
             border-left: 3px solid #3498db;
         }
+
+        /* Stream source picker */
+        .source-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .source-label {
+            color: #bdc3c7;
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        .src-btn {
+            background: #34495e;
+            color: #f1f1f1;
+            border: 1px solid #4a637d;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .src-btn:hover {
+            background: #3d566e;
+        }
+
+        .src-btn.src-active {
+            background: #27ae60;
+            border-color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .broadcast-status {
+            text-align: center;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            min-height: 1.2em;
+            color: #bdc3c7;
+        }
+
+        .broadcast-status[data-kind="error"] { color: #e74c3c; }
+        .broadcast-status[data-kind="success"] { color: #2ecc71; }
+
+        .insecure-warning {
+            background: rgba(231, 76, 60, 0.12);
+            border-left: 4px solid #e74c3c;
+            padding: 15px 18px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: #f1c0bc;
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .insecure-warning code {
+            background: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #f39c12;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +128,28 @@
         <div class="status-banner">
             ✓ Broadcast is LIVE and ready for connections
         </div>
+
+        <!-- HTTPS / secure-context warning (hidden unless capture is blocked) -->
+        <div id="insecureWarning" class="insecure-warning" style="display: none;">
+            📵 <strong>Your browser blocked camera/screen access.</strong>
+            Phones can only stream over a secure (HTTPS) connection — plain
+            <code>http://&lt;ip&gt;:5000</code> won't work.
+            <br>Fix it by exposing the server over HTTPS with the bundled ngrok:
+            <br><code>.\ngrok.exe http 5000</code>
+            <br>then open the <code>https://…ngrok…</code> URL on your phone and start the broadcast again.
+        </div>
+
+        <!-- Stream source picker (screen on desktop, camera on phones) -->
+        <div class="source-bar" id="sourceBar">
+            <span class="source-label">🎥 Stream source:</span>
+            <button type="button" class="src-btn" id="srcScreen" onclick="startCapture('screen')">🖥️ Screen</button>
+            <button type="button" class="src-btn" id="srcBack" onclick="startCapture('environment')">📷 Back Camera</button>
+            <button type="button" class="src-btn" id="srcFront" onclick="startCapture('user')">🤳 Front Camera</button>
+            <button type="button" class="src-btn" id="srcSwitch" onclick="switchCamera()">🔄 Switch</button>
+        </div>
+
+        <!-- Capture status -->
+        <div id="broadcastStatus" class="broadcast-status"></div>
 
         <!-- Video Preview -->
         <div class="video-container">

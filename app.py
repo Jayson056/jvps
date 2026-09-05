@@ -1,6 +1,7 @@
 # server/app.py
 from flask import Flask, render_template, request, jsonify, session as flask_session, redirect, url_for, send_file
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from werkzeug.middleware.proxy_fix import ProxyFix
 import uuid
 import threading
 import time
@@ -10,6 +11,12 @@ import os
 from datetime import datetime
 from pathlib import Path
 import qrcode
+from dotenv import load_dotenv
+
+# Load JVPS env
+env_path = Path(__file__).resolve().parent / '.env'
+if env_path.exists():
+    load_dotenv(env_path)
 
 # Optional GUI imports - only needed for local development with agent
 try:
@@ -18,9 +25,23 @@ try:
 except ImportError:
     PYAUTOGUI_AVAILABLE = False
 
+try:
+    import pyperclip
+    PYPERCLIP_AVAILABLE = True
+except ImportError:
+    PYPERCLIP_AVAILABLE = False
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'supersecretkey'
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'supersecretkey')
+
+# Trust reverse-proxy / tunnel headers (Cloudflare, ngrok, nginx) so that
+# request.host_url and generated links keep the original https scheme.
+# Without this, an https visitor to a tunneled domain gets http:// links,
+# which breaks camera/screen capture (it requires a secure context).
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
+
+# Tune ping_interval and ping_timeout to prevent Cloudflare tunnel WebSocket timeouts
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet', ping_interval=10, ping_timeout=25)
 
 # ---------------------------
 # LOGGING SETUP
@@ -53,12 +74,39 @@ sessions = {}  # session_id -> {'broadcaster': device_id, 'viewers': [], 'auto_v
 active_broadcasters = set()  # Track active broadcaster device IDs
 broadcast_sessions = {}  # device_id -> {'session_id': session_id, 'password': password, 'room_name': room_name, 'broadcaster_name': broadcaster_name, 'password_file': path}
 
-log_event('STARTUP', 'Application started')
+# ---------------------------
+# 24/7 Persistent Session Configuration
+# ---------------------------
+DEFAULT_ROOM_NAME = os.environ.get("JVPS_ROOM_NAME", "SERVER-1:Deployed_Services")
+DEFAULT_PASSWORD = os.environ.get("JVPS_PASSWORD", "JaysonMaster2026!")
+PERMANENT_SESSION_ID = "SESSION-SERVER-1-DEPLOYED-SERVICES"
+PERMANENT_DEVICE_ID = "DEV-SERVER-1"
+
+# Seed permanent 24/7 session
+broadcast_sessions[PERMANENT_DEVICE_ID] = {
+    'session_id': PERMANENT_SESSION_ID,
+    'password': DEFAULT_PASSWORD,
+    'room_name': DEFAULT_ROOM_NAME,
+    'broadcaster_name': 'Server Host',
+    'password_file': 'password.txt',
+    'is_permanent': True
+}
+sessions[PERMANENT_SESSION_ID] = {
+    'broadcaster': PERMANENT_DEVICE_ID,
+    'viewers': [],
+    'auto_viewer_id': None,
+    'is_permanent': True
+}
+devices[PERMANENT_DEVICE_ID] = {'role': 'broadcaster', 'sid': None}
+active_broadcasters.add(PERMANENT_DEVICE_ID)
+
+log_event('STARTUP', f'Application started. Permanent session ready: {PERMANENT_SESSION_ID} ({DEFAULT_ROOM_NAME})')
 
 # PyAutoGUI Configuration (only if available)
 if PYAUTOGUI_AVAILABLE:
     pyautogui.FAILSAFE = True
-MOUSE_SPEED = 0.1  # seconds for smooth movement
+MOUSE_SPEED = 0.05  # seconds for smooth movement
+
 
 # ---------------------------
 # HELPER FUNCTIONS
@@ -156,43 +204,64 @@ NOTE: Keep this password secure. Share the links with authorized viewers only.
 def execute_control(action):
     """
     Executes incoming control commands from the remote viewer.
-    action: dict with keys:
-        - type: 'mouse' or 'keyboard'
-        - data: dict containing coordinates or key names
+    Sanitized to prevent cursor hijacking and lagging:
+    - Pure hover movements (passive mousemove) are IGNORED.
+    - Clicks and drags execute instantly with _pause=False.
     """
     if not PYAUTOGUI_AVAILABLE:
         print("[WARNING] pyautogui not available - remote control disabled")
         return
     
     try:
-        if action['type'] == 'mouse':
-            data = action['data']
+        act_type = action.get('type')
+        if act_type == 'mouse':
+            data = action.get('data', {})
             x, y = data.get('x'), data.get('y')
             
             if x is not None and y is not None:
-                # Handle Movement
-                if data.get('move'):
-                    pyautogui.moveTo(x, y, duration=MOUSE_SPEED)
-                
-                # Handle Clicks
+                # Sanitize: ONLY execute intentional clicks or drags!
+                # Do NOT move host physical mouse on passive hover (move: true)!
                 if data.get('click'):
                     button = data.get('button', 'left')
-                    pyautogui.click(x, y, button=button)
+                    pyautogui.click(x, y, button=button, _pause=False)
+                elif data.get('dblclick'):
+                    button = data.get('button', 'left')
+                    pyautogui.doubleClick(x, y, button=button, _pause=False)
+                elif data.get('mousedown'):
+                    button = data.get('button', 'left')
+                    pyautogui.mouseDown(x, y, button=button, _pause=False)
+                elif data.get('mouseup'):
+                    button = data.get('button', 'left')
+                    pyautogui.mouseUp(x, y, button=button, _pause=False)
+                elif data.get('drag'):
+                    # Dragging with button held down
+                    pyautogui.moveTo(x, y, _pause=False)
+                elif data.get('wheel'):
+                    delta = data.get('deltaY', 0)
+                    if delta != 0:
+                        clicks = -int(delta / 40) if abs(delta) >= 40 else (-1 if delta > 0 else 1)
+                        pyautogui.scroll(clicks, x=x, y=y)
 
-        elif action['type'] == 'keyboard':
-            data = action['data']
+        elif act_type == 'keyboard':
+            data = action.get('data', {})
             key = data.get('key')
             action_type = data.get('action', 'press')
+            if key:
+                key = key.lower() if len(key) > 1 else key
+                if action_type == 'press':
+                    pyautogui.press(key, _pause=False)
+                elif action_type == 'down':
+                    pyautogui.keyDown(key, _pause=False)
+                elif action_type == 'up':
+                    pyautogui.keyUp(key, _pause=False)
 
-            # Standardize key names
-            key = key.lower() if len(key) > 1 else key
-
-            if action_type == 'press':
-                pyautogui.press(key)
-            elif action_type == 'down':
-                pyautogui.keyDown(key)
-            elif action_type == 'up':
-                pyautogui.keyUp(key)
+        elif act_type == 'clipboard':
+            # Direct clipboard paste command
+            data = action.get('data', {})
+            text = data.get('text', '')
+            if text and PYPERCLIP_AVAILABLE:
+                pyperclip.copy(text)
+                log_event('CLIPBOARD', f'Copied {len(text)} chars to host clipboard via control action')
 
     except Exception as e:
         print(f"[ERROR] Failed to execute control: {e}")
@@ -463,8 +532,6 @@ def auto_viewer(session_id):
 
 @socketio.on('register_device')
 def register_device(data):
-    # Fix: Use the ID sent by the browser (from the URL/Template) 
-    # instead of generating a new one every time
     device_id = data.get('device_id') or str(uuid.uuid4())
     role = data.get('role', 'viewer')
     
@@ -479,6 +546,11 @@ def register_device(data):
     
     emit('device_registered', {'device_id': device_id})
     log_event('DEVICE_REGISTERED', f'{role.upper()}: {device_id}, Room: {room_name}')
+    
+    # If permanent broadcaster registers, alert viewers in permanent room
+    if device_id == PERMANENT_DEVICE_ID:
+        active_broadcasters.add(PERMANENT_DEVICE_ID)
+        emit('broadcaster_ready', {'session_id': PERMANENT_SESSION_ID}, room=PERMANENT_SESSION_ID)
 
 @socketio.on('join_session')
 def join_session(data):
@@ -496,7 +568,7 @@ def join_session(data):
         
         # Notify the broadcaster that a viewer is ready
         broadcaster_id = sessions[session_id]['broadcaster']
-        if broadcaster_id in devices:
+        if broadcaster_id in devices and devices[broadcaster_id].get('sid'):
             target_sid = devices[broadcaster_id]['sid']
             emit('viewer_request', {'viewer_id': viewer_id}, to=target_sid)
             log_event('VIEWER_REQUEST', f'Viewer {viewer_id} requested access to session {session_id}')
@@ -505,6 +577,9 @@ def join_session(data):
             if auto_mode and viewer_id in devices:
                 emit('viewer_approved', {'approved': True}, to=devices[viewer_id]['sid'])
                 log_event('VIEWER_APPROVED', f'Viewer {viewer_id} auto-approved for session {session_id}')
+        else:
+            log_event('VIEWER_WAITING', f'Broadcaster {broadcaster_id} offline, viewer {viewer_id} waiting')
+            emit('broadcaster_waiting', {'message': 'Waiting for broadcaster...'})
     else:
         log_event('ERROR', f'Session not found: {session_id}')
         emit('error', {'message': 'Session not found'})
@@ -526,7 +601,7 @@ def handle_signal(data):
     data: { 'to': target_id, 'from': my_id, 'signal': {...} }
     """
     target_id = data.get('to')
-    if target_id in devices:
+    if target_id in devices and devices[target_id].get('sid'):
         target_sid = devices[target_id]['sid']
         log_event('SIGNAL_RELAY', f'Signal relayed from {data.get("from")} to {target_id}')
         emit('signal', data, to=target_sid)
@@ -547,15 +622,38 @@ def control_input(data):
         log_event('ERROR', f'Broadcaster {broadcaster_id} not registered in devices')
         return
     
-    target_sid = devices[broadcaster_id]['sid']
-    if not target_sid:
-        log_event('ERROR', f'Broadcaster {broadcaster_id} has no SID assigned')
-        return
-    
-    log_event('CONTROL_INPUT', f'Control from session {session_id}: {data.get("action", {}).get("type", "unknown")}')
-    
-    # Execute locally via PyAutoGUI (no need to wait for agent)
-    execute_control(data['action'])
+    # Execute locally via PyAutoGUI
+    execute_control(data.get('action', {}))
+
+# ---------------------------
+# Remote Clipboard Sync
+# ---------------------------
+@socketio.on('clipboard_set')
+def handle_clipboard_set(data):
+    """Remote viewer pastes text into the host machine's clipboard"""
+    text = data.get('text', '')
+    if text and PYPERCLIP_AVAILABLE:
+        try:
+            pyperclip.copy(text)
+            log_event('CLIPBOARD', f'Remote viewer set host clipboard ({len(text)} chars)')
+            emit('clipboard_ack', {'success': True, 'action': 'set'})
+        except Exception as e:
+            log_event('CLIPBOARD_ERROR', f'Failed to set clipboard: {e}')
+            emit('clipboard_ack', {'success': False, 'error': str(e)})
+
+@socketio.on('clipboard_get')
+def handle_clipboard_get(data=None):
+    """Remote viewer fetches text from host machine's clipboard"""
+    if PYPERCLIP_AVAILABLE:
+        try:
+            text = pyperclip.paste()
+            emit('clipboard_data', {'text': text or ''})
+            log_event('CLIPBOARD', f'Sent host clipboard to viewer ({len(text) if text else 0} chars)')
+        except Exception as e:
+            log_event('CLIPBOARD_ERROR', f'Failed to read clipboard: {e}')
+            emit('clipboard_data', {'text': '', 'error': str(e)})
+    else:
+        emit('clipboard_data', {'text': '', 'error': 'pyperclip not available'})
 
 # ---------------------------
 # Disconnect Handling
@@ -567,21 +665,28 @@ def disconnect():
     
     # Find which device disconnected
     for d_id, d_data in list(devices.items()):
-        if d_data['sid'] == sid:
+        if d_data.get('sid') == sid:
             disconnected_id = d_id
-            del devices[d_id]
+            if d_id == PERMANENT_DEVICE_ID:
+                devices[d_id]['sid'] = None  # Keep permanent device registered, just clear sid
+            else:
+                del devices[d_id]
             break
             
     if disconnected_id:
         log_event('DEVICE_DISCONNECTED', f'Device: {disconnected_id}')
         
-        # Clean up sessions associated with this broadcaster
+        # Clean up sessions associated with this broadcaster, BUT PRESERVE permanent session!
         for s_id, s_data in list(sessions.items()):
-            if s_data['broadcaster'] == disconnected_id:
-                emit('session_ended', room=s_id)
-                del sessions[s_id]
-                active_broadcasters.discard(disconnected_id)
-                log_event('SESSION_ENDED', f'Session: {s_id}')
+            if s_data.get('broadcaster') == disconnected_id:
+                if s_id == PERMANENT_SESSION_ID or s_data.get('is_permanent'):
+                    emit('broadcaster_reconnecting', room=s_id)
+                    log_event('SESSION_RECONNECTING', f'Broadcaster disconnected; 24/7 session preserved: {s_id}')
+                else:
+                    emit('session_ended', room=s_id)
+                    del sessions[s_id]
+                    active_broadcasters.discard(disconnected_id)
+                    log_event('SESSION_ENDED', f'Session: {s_id}')
 
 # ---------------------------
 # Latency Tracking
@@ -594,8 +699,9 @@ def handle_ping(data):
 # Main
 # ---------------------------
 if __name__ == "__main__":
-    log_event('STARTUP', 'Starting JVPS Desktop Remote server...')
-    print("[INFO] Starting JVPS Desktop Remote server...")
-    print("[INFO] Navigate to http://localhost:5000/ to start")
+    port = int(os.environ.get("PORT", 50011))
+    log_event('STARTUP', f'Starting JVPS Desktop Remote server on port {port}...')
+    print(f"[INFO] Starting JVPS Desktop Remote server on port {port}...")
+    print(f"[INFO] Navigate to http://localhost:{port}/ to start")
     print("[INFO] Logs are being saved to logs.txt")
-    socketio.run(app, host="0.0.0.0", port=5000, debug=False, use_reloader=False)
+    socketio.run(app, host="0.0.0.0", port=port, debug=False, use_reloader=False)

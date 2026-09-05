@@ -18,9 +18,35 @@ let deviceId = null;    // Viewer device ID
 let sessionId = window.SESSION_ID || null; // Current session from template
 let broadcasterId = null; // Will be set during signaling
 
-// Control States
-let mouseEnabled = true;
-let kbdEnabled = true;
+// Control States: DEFAULT OFF to sanitize and protect host cursor!
+let mouseEnabled = false;
+let kbdEnabled = false;
+let isMouseDown = false;
+
+// Virtual cursor element for isolated pointer
+let virtualCursor = null;
+
+function initVirtualCursor() {
+    if (!virtualCursor && remoteVideo.parentElement) {
+        virtualCursor = document.createElement('div');
+        virtualCursor.id = 'virtualCursor';
+        virtualCursor.style.position = 'absolute';
+        virtualCursor.style.width = '12px';
+        virtualCursor.style.height = '12px';
+        virtualCursor.style.borderRadius = '50%';
+        virtualCursor.style.background = '#3498db';
+        virtualCursor.style.border = '2px solid #ffffff';
+        virtualCursor.style.boxShadow = '0 0 6px rgba(0,0,0,0.6)';
+        virtualCursor.style.pointerEvents = 'none';
+        virtualCursor.style.zIndex = '9999';
+        virtualCursor.style.display = 'none';
+        virtualCursor.style.transform = 'translate(-50%, -50%)';
+        virtualCursor.style.transition = 'width 0.1s, height 0.1s, background 0.1s';
+        
+        remoteVideo.parentElement.style.position = 'relative';
+        remoteVideo.parentElement.appendChild(virtualCursor);
+    }
+}
 
 console.log('[WebRTC] Initializing Socket.IO connection...');
 
@@ -38,7 +64,11 @@ socket.on('device_registered', (data) => {
 
     if (sessionId) {
         console.log("[INFO] Joining session:", sessionId);
-        socket.emit('join_session', { session_id: sessionId, device_id: deviceId });
+        socket.emit('join_session', {
+            session_id: sessionId,
+            device_id: deviceId,
+            auto_approve: window.AUTO_APPROVE || false
+        });
     }
 });
 
@@ -52,10 +82,34 @@ socket.on('viewer_approved', (data) => {
     }
 });
 
+// Broadcaster reconnecting alert
+socket.on('broadcaster_reconnecting', () => {
+    console.log("[INFO] Broadcaster is reconnecting...");
+    const statusText = document.getElementById('statusText');
+    if (statusText) statusText.textContent = 'Broadcaster reconnecting...';
+    const statusDot = document.getElementById('statusDot');
+    if (statusDot) statusDot.className = 'status-dot connecting';
+});
+
+socket.on('broadcaster_ready', () => {
+    console.log("[INFO] Broadcaster is ready. Requesting session connection...");
+    if (sessionId) {
+        socket.emit('join_session', {
+            session_id: sessionId,
+            device_id: deviceId,
+            auto_approve: window.AUTO_APPROVE || false
+        });
+    }
+});
+
 // ---------------------------
 // 2. WebRTC Setup
 // ---------------------------
 function startWebRTC() {
+    if (pc) {
+        try { pc.close(); } catch(e) {}
+    }
+
     pc = new RTCPeerConnection({
         iceServers: [
             { urls: "stun:stun.l.google.com:19302" },
@@ -63,12 +117,20 @@ function startWebRTC() {
         ]
     });
 
-    // Handle incoming video stream
+    // Handle incoming video & audio stream
     pc.ontrack = event => {
-        console.log("[INFO] Remote stream received");
+        console.log("[INFO] Remote stream received, track kind:", event.track.kind);
         if (remoteVideo.srcObject !== event.streams[0]) {
             remoteVideo.srcObject = event.streams[0];
-            remoteVideo.play();
+            remoteVideo.play().then(() => {
+                console.log("[INFO] Video & audio stream playback started");
+            }).catch(err => {
+                console.warn("[WARN] Autoplay with sound prevented by browser:", err);
+                // Attempt muted play if sound was blocked by browser policy
+                remoteVideo.muted = true;
+                remoteVideo.play();
+                showUnmuteBtn();
+            });
         }
     };
 
@@ -85,7 +147,25 @@ function startWebRTC() {
 
     pc.onconnectionstatechange = () => {
         console.log(`[INFO] WebRTC State: ${pc.connectionState}`);
+        if (pc.connectionState === 'connected') {
+            const statusDot = document.getElementById('statusDot');
+            if (statusDot) statusDot.className = 'status-dot connected';
+            const statusText = document.getElementById('statusText');
+            if (statusText) statusText.textContent = 'Connected (Live 24/7)';
+        } else if (pc.connectionState === 'disconnected') {
+            const statusDot = document.getElementById('statusDot');
+            if (statusDot) statusDot.className = 'status-dot connecting';
+        }
     };
+}
+
+function showUnmuteBtn() {
+    const soundBtn = document.getElementById('btnSound');
+    if (soundBtn) {
+        soundBtn.innerHTML = '🔇 Unmute Audio';
+        soundBtn.classList.remove('btn-secondary');
+        soundBtn.classList.add('btn-warning');
+    }
 }
 
 // ---------------------------
@@ -116,7 +196,6 @@ socket.on('signal', async (data) => {
         try {
             if (pc) {
                 await pc.addIceCandidate(new RTCIceCandidate(data.signal.candidate));
-                console.log("[INFO] ICE candidate applied");
             }
         } catch (err) {
             console.error("[ERROR] Candidate error:", err);
@@ -125,7 +204,7 @@ socket.on('signal', async (data) => {
 });
 
 // ---------------------------
-// 4. Remote Control Logic
+// 4. Remote Control Logic (SANITIZED & ISOLATED)
 // ---------------------------
 function sendControlInput(action) {
     if (!sessionId) return;
@@ -148,12 +227,10 @@ function getVideoDisplayArea() {
     let displayWidth, displayHeight, offsetX = 0, offsetY = 0;
     
     if (videoAspect > containerAspect) {
-        // Video is wider than container (letterbox on top/bottom)
         displayWidth = rect.width;
         displayHeight = rect.width / videoAspect;
         offsetY = (rect.height - displayHeight) / 2;
     } else {
-        // Video is taller than container (pillarbox on sides)
         displayHeight = rect.height;
         displayWidth = rect.height * videoAspect;
         offsetX = (rect.width - displayWidth) / 2;
@@ -162,131 +239,302 @@ function getVideoDisplayArea() {
     return { displayWidth, displayHeight, offsetX, offsetY, containerRect: rect };
 }
 
-// Optimized Mouse listener with Aspect Ratio Aware Coordinate Scaling
-remoteVideo.addEventListener('mousemove', e => {
-    if (!mouseEnabled || !remoteVideo.videoWidth) return;
-    
+// Translate client mouse position to video coordinates
+function getScaledCoordinates(e) {
     const displayArea = getVideoDisplayArea();
-    if (!displayArea) return;
+    if (!displayArea) return null;
     
     const { displayWidth, displayHeight, offsetX, offsetY, containerRect } = displayArea;
+    const cursorX = e.clientX - containerRect.left;
+    const cursorY = e.clientY - containerRect.top;
     
-    // Get cursor position relative to container
-    let cursorX = e.clientX - containerRect.left;
-    let cursorY = e.clientY - containerRect.top;
-    
-    // Check if cursor is within video display area (not in letterbox/pillarbox)
     if (cursorX < offsetX || cursorY < offsetY || 
         cursorX > (offsetX + displayWidth) || 
         cursorY > (offsetY + displayHeight)) {
-        return; // Ignore clicks outside video area
+        return null; // Outside actual video frame
     }
     
-    // Calculate relative position within video display area (0-1)
     const relativeX = (cursorX - offsetX) / displayWidth;
     const relativeY = (cursorY - offsetY) / displayHeight;
-    
-    // Map to actual video resolution
     const x = Math.floor(relativeX * remoteVideo.videoWidth);
     const y = Math.floor(relativeY * remoteVideo.videoHeight);
     
-    // Validate coordinates
-    if (!isNaN(x) && !isNaN(y) && x >= 0 && y >= 0 && 
-        x < remoteVideo.videoWidth && y < remoteVideo.videoHeight) {
-        sendControlInput({ type: 'mouse', data: { x, y, move: true } });
-    }
-});
+    return { x, y, cursorX, cursorY };
+}
 
-remoteVideo.addEventListener('click', e => {
-    if (!mouseEnabled || !remoteVideo.videoWidth) return;
-    
-    const displayArea = getVideoDisplayArea();
-    if (!displayArea) return;
-    
-    const { displayWidth, displayHeight, offsetX, offsetY, containerRect } = displayArea;
-    
-    // Get cursor position relative to container
-    let cursorX = e.clientX - containerRect.left;
-    let cursorY = e.clientY - containerRect.top;
-    
-    // Check if cursor is within video display area
-    if (cursorX < offsetX || cursorY < offsetY || 
-        cursorX > (offsetX + displayWidth) || 
-        cursorY > (offsetY + displayHeight)) {
-        return; // Ignore clicks outside video area
+// Virtual Cursor Mousemove:
+// IMPORTANT SANITIZATION: Passive hover moves NEVER send moveTo to the host!
+remoteVideo.addEventListener('mousemove', e => {
+    initVirtualCursor();
+    const coords = getScaledCoordinates(e);
+    if (!coords) {
+        if (virtualCursor) virtualCursor.style.display = 'none';
+        return;
     }
     
-    // Calculate relative position within video display area (0-1)
-    const relativeX = (cursorX - offsetX) / displayWidth;
-    const relativeY = (cursorY - offsetY) / displayHeight;
+    // Update client virtual pointer
+    if (virtualCursor) {
+        virtualCursor.style.display = 'block';
+        virtualCursor.style.left = coords.cursorX + 'px';
+        virtualCursor.style.top = coords.cursorY + 'px';
+        virtualCursor.style.background = mouseEnabled ? '#e74c3c' : '#3498db';
+    }
     
-    // Map to actual video resolution
-    const x = Math.floor(relativeX * remoteVideo.videoWidth);
-    const y = Math.floor(relativeY * remoteVideo.videoHeight);
-    
-    // Validate and send click
-    if (!isNaN(x) && !isNaN(y) && x >= 0 && y >= 0 && 
-        x < remoteVideo.videoWidth && y < remoteVideo.videoHeight) {
+    // Only send drag movement if mouse button is held down AND control is ON!
+    if (mouseEnabled && isMouseDown) {
         sendControlInput({
             type: 'mouse',
-            data: { x, y, click: true, button: 'left' }
+            data: { x: coords.x, y: coords.y, drag: true }
         });
     }
 });
 
+remoteVideo.addEventListener('mouseleave', () => {
+    if (virtualCursor) virtualCursor.style.display = 'none';
+    isMouseDown = false;
+});
+
+// Click listener
+remoteVideo.addEventListener('click', e => {
+    if (!mouseEnabled) return;
+    const coords = getScaledCoordinates(e);
+    if (!coords) return;
+    
+    sendControlInput({
+        type: 'mouse',
+        data: { x: coords.x, y: coords.y, click: true, button: 'left' }
+    });
+});
+
+// Double-click listener
+remoteVideo.addEventListener('dblclick', e => {
+    if (!mouseEnabled) return;
+    const coords = getScaledCoordinates(e);
+    if (!coords) return;
+    
+    sendControlInput({
+        type: 'mouse',
+        data: { x: coords.x, y: coords.y, dblclick: true, button: 'left' }
+    });
+});
+
+// Right click listener
+remoteVideo.addEventListener('contextmenu', e => {
+    if (!mouseEnabled) return;
+    e.preventDefault(); // Don't show browser right-click menu
+    const coords = getScaledCoordinates(e);
+    if (!coords) return;
+    
+    sendControlInput({
+        type: 'mouse',
+        data: { x: coords.x, y: coords.y, click: true, button: 'right' }
+    });
+});
+
+// Mouse down / up for dragging
+remoteVideo.addEventListener('mousedown', e => {
+    isMouseDown = true;
+    if (!mouseEnabled) return;
+    const coords = getScaledCoordinates(e);
+    if (!coords) return;
+    
+    const btn = e.button === 2 ? 'right' : 'left';
+    sendControlInput({
+        type: 'mouse',
+        data: { x: coords.x, y: coords.y, mousedown: true, button: btn }
+    });
+});
+
+remoteVideo.addEventListener('mouseup', e => {
+    isMouseDown = false;
+    if (!mouseEnabled) return;
+    const coords = getScaledCoordinates(e);
+    if (!coords) return;
+    
+    const btn = e.button === 2 ? 'right' : 'left';
+    sendControlInput({
+        type: 'mouse',
+        data: { x: coords.x, y: coords.y, mouseup: true, button: btn }
+    });
+});
+
+// Wheel / Scroll listener
+remoteVideo.addEventListener('wheel', e => {
+    if (!mouseEnabled) return;
+    e.preventDefault();
+    const coords = getScaledCoordinates(e);
+    if (!coords) return;
+    
+    sendControlInput({
+        type: 'mouse',
+        data: { x: coords.x, y: coords.y, wheel: true, deltaY: e.deltaY }
+    });
+}, { passive: false });
+
 // Keyboard listeners
 window.addEventListener('keydown', e => {
     if (!kbdEnabled) return;
+    // Don't capture inputs if user is typing in a text input box
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    
+    // Prevent browser defaults for common navigation keys
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Space'].includes(e.code)) {
+        e.preventDefault();
+    }
     sendControlInput({ type: 'keyboard', data: { key: e.key, action: 'down' } });
 });
 
 window.addEventListener('keyup', e => {
     if (!kbdEnabled) return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     sendControlInput({ type: 'keyboard', data: { key: e.key, action: 'up' } });
 });
 
 // ---------------------------
-// 5. UI Controls (Buttons)
+// 5. Remote Clipboard Support
 // ---------------------------
-
-// Fullscreen
-const btnFull = document.getElementById('btnFull');
-if (btnFull) {
-    btnFull.addEventListener('click', () => {
-        if (remoteVideo.requestFullscreen) {
-            remoteVideo.requestFullscreen();
-        } else if (remoteVideo.webkitRequestFullscreen) { /* Safari */
-            remoteVideo.webkitRequestFullscreen();
-        }
-    });
+function sendClipboardToHost(text) {
+    if (!text) return;
+    socket.emit('clipboard_set', { text: text });
 }
 
-// Rotate
-const btnRotate = document.getElementById('btnRotate');
-if (btnRotate) {
-    btnRotate.addEventListener('click', () => {
-        remoteVideo.classList.toggle('rotated');
-    });
+function requestClipboardFromHost() {
+    socket.emit('clipboard_get');
 }
 
-// Toggle Mouse
-const toggleMouseBtn = document.getElementById('toggleMouse');
-if (toggleMouseBtn) {
-    toggleMouseBtn.addEventListener('click', () => {
-        mouseEnabled = !mouseEnabled;
-        toggleMouseBtn.innerText = `Mouse: ${mouseEnabled ? 'ON' : 'OFF'}`;
-        toggleMouseBtn.classList.toggle('btn-primary');
-        toggleMouseBtn.classList.toggle('btn-warning');
-    });
+socket.on('clipboard_ack', data => {
+    if (data.success) {
+        showToast("✓ Sent text to Host Clipboard!");
+    }
+});
+
+socket.on('clipboard_data', data => {
+    if (data.text) {
+        navigator.clipboard.writeText(data.text).then(() => {
+            showToast("✓ Copied Host Clipboard to your device!");
+        }).catch(() => {
+            prompt("Host Clipboard content (Ctrl+C to copy):", data.text);
+        });
+    } else {
+        showToast("Host clipboard is empty");
+    }
+});
+
+// Listen for Ctrl+V paste while focused on viewer
+window.addEventListener('paste', e => {
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    if (text) {
+        sendClipboardToHost(text);
+        showToast("✓ Pasted to Host Clipboard!");
+    }
+});
+
+// Toast notification helper
+function showToast(msg) {
+    let toast = document.getElementById('viewerToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'viewerToast';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.right = '20px';
+        toast.style.background = '#2c3e50';
+        toast.style.color = '#fff';
+        toast.style.padding = '12px 20px';
+        toast.style.borderRadius = '8px';
+        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.4)';
+        toast.style.zIndex = '99999';
+        toast.style.fontSize = '14px';
+        toast.style.fontWeight = 'bold';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3000);
 }
 
-// Toggle Keyboard
-const toggleKbdBtn = document.getElementById('toggleKbd');
-if (toggleKbdBtn) {
-    toggleKbdBtn.addEventListener('click', () => {
-        kbdEnabled = !kbdEnabled;
-        toggleKbdBtn.innerText = `Kbd: ${kbdEnabled ? 'ON' : 'OFF'}`;
-        toggleKbdBtn.classList.toggle('btn-primary');
-        toggleKbdBtn.classList.toggle('btn-warning');
-    });
-}
+// ---------------------------
+// 6. UI Controls & Initialization
+// ---------------------------
+document.addEventListener('DOMContentLoaded', () => {
+    initVirtualCursor();
+
+    // Toggle Sound Button
+    const btnSound = document.getElementById('btnSound');
+    if (btnSound) {
+        btnSound.addEventListener('click', () => {
+            remoteVideo.muted = !remoteVideo.muted;
+            btnSound.innerHTML = remoteVideo.muted ? '🔇 Sound: MUTED' : '🔊 Sound: ON';
+            btnSound.classList.toggle('btn-primary', !remoteVideo.muted);
+            btnSound.classList.toggle('btn-secondary', remoteVideo.muted);
+        });
+    }
+
+    // Toggle Mouse Control
+    const toggleMouseBtn = document.getElementById('toggleMouse');
+    if (toggleMouseBtn) {
+        // Reflect default OFF
+        toggleMouseBtn.innerHTML = '🖱️ Mouse: VIEW ONLY';
+        toggleMouseBtn.classList.remove('btn-primary');
+        toggleMouseBtn.classList.add('btn-secondary');
+
+        toggleMouseBtn.addEventListener('click', () => {
+            mouseEnabled = !mouseEnabled;
+            if (mouseEnabled) {
+                toggleMouseBtn.innerHTML = '🖱️ Mouse: CONTROL';
+                toggleMouseBtn.classList.remove('btn-secondary');
+                toggleMouseBtn.classList.add('btn-danger');
+                showToast("⚠️ Control Mode: Mouse clicks will interact with remote host");
+            } else {
+                toggleMouseBtn.innerHTML = '🖱️ Mouse: VIEW ONLY';
+                toggleMouseBtn.classList.remove('btn-danger');
+                toggleMouseBtn.classList.add('btn-secondary');
+                showToast("View-Only: Host cursor protected");
+            }
+        });
+    }
+
+    // Toggle Keyboard Control
+    const toggleKbdBtn = document.getElementById('toggleKbd');
+    if (toggleKbdBtn) {
+        toggleKbdBtn.innerHTML = '⌨️ Kbd: OFF';
+        toggleKbdBtn.classList.remove('btn-primary');
+        toggleKbdBtn.classList.add('btn-secondary');
+
+        toggleKbdBtn.addEventListener('click', () => {
+            kbdEnabled = !kbdEnabled;
+            toggleKbdBtn.innerHTML = kbdEnabled ? '⌨️ Kbd: ON' : '⌨️ Kbd: OFF';
+            toggleKbdBtn.classList.toggle('btn-danger', kbdEnabled);
+            toggleKbdBtn.classList.toggle('btn-secondary', !kbdEnabled);
+        });
+    }
+
+    // Clipboard Paste Button
+    const btnPaste = document.getElementById('btnPaste');
+    if (btnPaste) {
+        btnPaste.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    sendClipboardToHost(text);
+                } else {
+                    const manualText = prompt("Enter text to send to Host Clipboard:");
+                    if (manualText) sendClipboardToHost(manualText);
+                }
+            } catch(e) {
+                const manualText = prompt("Enter text to send to Host Clipboard:");
+                if (manualText) sendClipboardToHost(manualText);
+            }
+        });
+    }
+
+    // Clipboard Copy from Host Button
+    const btnCopy = document.getElementById('btnCopy');
+    if (btnCopy) {
+        btnCopy.addEventListener('click', () => {
+            requestClipboardFromHost();
+        });
+    }
+});

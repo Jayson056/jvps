@@ -87,7 +87,7 @@
     <input type="text" id="kbdTrigger" autocomplete="off" autofocus>
     
     <div class="stage">
-        <video id="remoteVideo" autoplay muted playsinline></video>
+        <video id="remoteVideo" autoplay playsinline></video>
         <div id="loadingIndicator" style="position: absolute; text-align: center; color: #999;">
             <div style="font-size: 14px;">⏳ Waiting for broadcast...</div>
         </div>
@@ -99,14 +99,16 @@
     </div>
 
     <nav class="toolbar" id="mainToolbar">
-        <button class="tool-btn" id="btnPad" title="Touchpad">🖱️</button>
+        <button class="tool-btn" id="btnToggleControl" title="Toggle Remote Control">🖱️</button>
         <button class="tool-btn" id="btnKbd" title="Keyboard">⌨️</button>
-        <button class="tool-btn" id="btnMute">🔊</button>
-        <button class="tool-btn" id="btnRotate">🔄</button>
-        <button class="tool-btn" id="btnFlip">↔️</button>
-        <button class="tool-btn" id="btnTheme">🌓</button>
+        <button class="tool-btn" id="btnPaste" title="Paste to Host">📋</button>
+        <button class="tool-btn" id="btnCopy" title="Copy Host Clipboard">📥</button>
+        <button class="tool-btn" id="btnMute" title="Audio">🔊</button>
+        <button class="tool-btn" id="btnRotate" title="Rotate">🔄</button>
+        <button class="tool-btn" id="btnFlip" title="Flip">↔️</button>
+        <button class="tool-btn" id="btnTheme" title="Theme">🌓</button>
         <button class="tool-btn" id="btnLock" title="Lock Toolbar">🔓</button>
-        <a href="{{ url_for('view_list') }}" class="tool-btn" style="color: #ff3b30;">✕</a>
+        <a href="{{ url_for('view_list') }}" class="tool-btn" style="color: #ff3b30;" title="Exit">✕</a>
     </nav>
 
     <script>

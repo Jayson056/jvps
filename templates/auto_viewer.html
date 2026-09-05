@@ -86,8 +86,11 @@
         <!-- Control Panel -->
         <div class="controls">
             <div class="btn-group" style="grid-column: 1 / -1;">
-                <button id="toggleMouse" class="btn btn-primary">🖱️ Mouse: ON</button>
-                <button id="toggleKbd" class="btn btn-primary">⌨️ Kbd: ON</button>
+                <button id="toggleMouse" class="btn btn-secondary">🖱️ Mouse: VIEW ONLY</button>
+                <button id="toggleKbd" class="btn btn-secondary">⌨️ Kbd: OFF</button>
+                <button id="btnSound" class="btn btn-primary">🔊 Sound: ON</button>
+                <button id="btnPaste" class="btn btn-secondary">📋 Paste to Host</button>
+                <button id="btnCopy" class="btn btn-secondary">📥 Copy Host Clipboard</button>
                 <button id="btnFull" class="btn btn-secondary">🖥️ Fullscreen</button>
                 <button id="btnRotate" class="btn btn-secondary">🔄 Rotate</button>
                 <a href="{{ url_for('home') }}" class="btn btn-danger">❌ Exit</a>
@@ -96,12 +99,12 @@
 
         <!-- Info Panel -->
         <div style="background: rgba(52, 152, 219, 0.1); padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #3498db;">
-            <h3 style="margin-top: 0;">Control Instructions:</h3>
-            <ul style="margin: 10px 0; padding-left: 20px;">
-                <li><strong>Mouse:</strong> Move your mouse over the video to control the remote mouse</li>
-                <li><strong>Click:</strong> Click on the video to perform mouse clicks on the remote</li>
-                <li><strong>Keyboard:</strong> Type to send keyboard inputs to the remote machine</li>
-                <li><strong>Toggle:</strong> Use the buttons above to enable/disable mouse or keyboard control</li>
+            <h3 style="margin-top: 0;">Stream & Controls:</h3>
+            <ul style="margin: 10px 0; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Isolated Cursor:</strong> By default in <em>View-Only</em>, your pointer moves locally as a blue virtual cursor without affecting the host's physical mouse.</li>
+                <li><strong>Remote Control:</strong> Click <em>Mouse: VIEW ONLY</em> to toggle control. When enabled, clicks and drags interact with the host instantly with zero hover hijacking.</li>
+                <li><strong>Sound:</strong> Live desktop audio and microphone are streamed in real time. Click <em>Sound</em> to mute/unmute.</li>
+                <li><strong>Clipboard:</strong> Click <em>Paste to Host</em> (or press Ctrl+V while focused) to send text to host. Click <em>Copy Host Clipboard</em> to fetch host clipboard to your device.</li>
             </ul>
         </div>
     </div>

@@ -349,7 +349,7 @@
 
             <!-- Share Your Screen Button (Hidden until session created) -->
             <button type="button" class="btn" id="shareScreenBtn" style="width: 100%; padding: 15px; background: #2ecc71; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; margin-top: 15px; cursor: pointer; display: none; transition: all 0.3s;" onclick="startBroadcast()">
-                🎬 Share Your Screen Now
+                🎬 Start Streaming Now (Screen or Phone Camera)
             </button>
 
             <input type="hidden" id="sessionId">
@@ -491,8 +491,16 @@ Instructions:
                     console.error('✗ QR Code URL not received from server');
                 }
 
-                document.getElementById('autoViewerLink').textContent = data.auto_viewer_link;
-                document.getElementById('manualViewLink').textContent = data.manual_viewer_link;
+                // Build links from the CURRENT origin so they keep the same
+                // scheme the browser is actually on (https). This avoids http://
+                // links when the server sits behind a tunnel/reverse proxy.
+                const origin = window.location.origin;
+                const autoViewerLink = `${origin}/auto_viewer/${data.session_id}?pwd=${data.password}`;
+                const manualViewLink = `${origin}/view/${data.session_id}`;
+                const broadcasterUrl = `${origin}/broadcast/${data.device_id}`;
+
+                document.getElementById('autoViewerLink').textContent = autoViewerLink;
+                document.getElementById('manualViewLink').textContent = manualViewLink;
 
                 // Store in sessionStorage for next page
                 sessionStorage.setItem('broadcastData', JSON.stringify({
@@ -501,10 +509,9 @@ Instructions:
                     sessionId: data.session_id,
                     password: data.password,
                     deviceId: data.device_id,
-                    autoViewerLink: data.auto_viewer_link,
-                    manualViewLink: data.manual_viewer_link,
-                    broadcasterUrl: data.broadcaster_url,
-                    deviceId: data.device_id
+                    autoViewerLink: autoViewerLink,
+                    manualViewLink: manualViewLink,
+                    broadcasterUrl: broadcasterUrl
                 }));
 
                 // Show sections
@@ -528,24 +535,30 @@ Instructions:
             }
             const data = JSON.parse(broadcastData);
             console.log('Broadcast data:', data);
-            console.log('Broadcaster URL:', data.broadcasterUrl);
-            if (!data.broadcasterUrl) {
-                alert('Error: Broadcaster URL not found. Please create a session again.');
+
+            // Always navigate using the current (secure) origin so the broadcaster
+            // page stays on https. Camera/screen capture requires a secure context,
+            // so a stray http:// redirect would break streaming on phones.
+            const deviceId = data.deviceId;
+            if (!deviceId) {
+                alert('Error: Device ID not found. Please create a session again.');
                 return;
             }
-            
+            const broadcasterUrl = `${window.location.origin}/broadcast/${deviceId}`;
+            console.log('Broadcaster URL:', broadcasterUrl);
+
             // Delete QR code image before redirecting
             fetch('/delete_qr', { method: 'POST' })
                 .then(res => res.json())
                 .then(result => {
                     console.log('QR code deleted:', result);
                     // Redirect to broadcast view
-                    window.location.href = data.broadcasterUrl;
+                    window.location.href = broadcasterUrl;
                 })
                 .catch(err => {
                     console.warn('Could not delete QR code:', err);
                     // Still redirect even if delete fails
-                    window.location.href = data.broadcasterUrl;
+                    window.location.href = broadcasterUrl;
                 });
         }
 
